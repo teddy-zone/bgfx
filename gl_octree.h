@@ -3,7 +3,10 @@
 #define _GL_OCTREE_H_
 
 #include "glm/glm.hpp"
-#include "Buffer.h"
+#include "buffer.h"
+
+namespace bgfx
+{
 
 struct GLOctreeNode
 {
@@ -12,7 +15,7 @@ struct GLOctreeNode
 	//GLuint pad1[7];
 };
 
-inline GLOctreeNode create_node(GLbyte in_data=0)
+inline GLOctreeNode create_node(GLbyte in_data = 0)
 {
 	GLOctreeNode out_node;
 	for (size_t i = 0; i < 8; ++i)
@@ -24,17 +27,17 @@ inline GLOctreeNode create_node(GLbyte in_data=0)
 }
 
 inline unsigned int vec_to_child(glm::vec3 node_loc, float node_size, glm::vec3 loc)
-{                                                                                                    
+{
 	glm::vec3 node_center = node_loc + glm::vec3(node_size) / 2.0f;
 	return int(bool(loc.x > node_center.x)) * 1 + int(bool(loc.y > node_center.y)) * 2 + int(bool(loc.z > node_center.z)) * 4;
 }
 
-inline glm::vec3 child_to_vec(unsigned int child)                                                         
-{                                              
-	return (glm::vec3(int(bool(child & 1)), int(bool(child & 2)), int(bool(child & 4))));        
+inline glm::vec3 child_to_vec(unsigned int child)
+{
+	return (glm::vec3(int(bool(child & 1)), int(bool(child & 2)), int(bool(child & 4))));
 }
 
-inline unsigned int place_node(std::vector<GLOctreeNode>& nodes, unsigned int root_node, glm::vec3 root_loc, float root_size, glm::vec3 loc, float size, int data, bool place_inside=false)
+inline unsigned int place_node(std::vector<GLOctreeNode>& nodes, unsigned int root_node, glm::vec3 root_loc, float root_size, glm::vec3 loc, float size, int data, bool place_inside = false)
 {
 	if (nodes[root_node].data > 0 && !place_inside)
 	{
@@ -68,25 +71,27 @@ inline unsigned int place_node(std::vector<GLOctreeNode>& nodes, unsigned int ro
 
 class GLOctree
 {
-	
+
 
 public:
 	GLfloat root_size;
 	std::vector<GLOctreeNode> nodes;
 	Buffer<GLOctreeNode>* node_buffer;
-	GLOctree(GLfloat in_size):
+	GLOctree(GLfloat in_size) :
 		root_size(in_size)
 	{
 		root_size = in_size;
 		nodes.push_back(create_node());
 
-		node_buffer = new Buffer<GLOctreeNode>(nodes, BufferType::SSBO);
+		node_buffer = new Buffer<GLOctreeNode>(nodes);
 	}
 
 	void refresh_data()
 	{
-		node_buffer->set_data(nodes, BufferType::SSBO);
+		node_buffer->set_data(nodes);
 	}
 };
+
+}  // namespace bgfx
 
 #endif  // _GL_OCTREE_H_

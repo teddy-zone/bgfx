@@ -4,116 +4,84 @@
 
 #include <vector>
 
-#include "glad/gl.h"
-#include <GLFW/glfw3.h>
+#include "raw_buffer.h"
 
-#include "gl_object.h"
-
-//class VertexArray;
-
-enum class BufferType
+namespace bgfx
 {
-	SSBO,
-	VBO,
-	TBO,
-	UBO
-};
 
-class BufferGeneric : public GLObject
+// Base class for all templated Buffers to inherit from same class
+class BufferBase
 {
 protected:
-
-	friend class VertexArray;
+	RawBuffer _raw_buffer;
 public:
-	virtual void bind(GLuint bindpoint = -1) override
+	void bind()
 	{
-		if (bindpoint == -1)
+		_raw_buffer.bind();
+	}
+};
+
+// Generic data type type-safe buffer class
+template <class DataType>
+class Buffer : public BufferBase
+{
+	DataType* _mapped_data = nullptr;
+	std::vector<DataType> _local_copy;
+	std::vector<DataType> _local_range_copy;
+
+public:
+	explicit Buffer()
+	{
+	}
+
+	explicit Buffer(const std::vector<DataType>& in_data)
+	{
+		set_data(in_data);
+	}
+
+	void set_data(const std::vector<DataType>& in_data)
+	{
+		_raw_buffer.buffer_data(in_data.data(), in_data.size(), sizeof(DataType));
+	}
+
+	void set_data_range(const std::vector<DataType>& in_data, size_t start_element)
+	{
+		_raw_buffer.buffer_sub_data(in_data.data(), start_element, in_data.size(), sizeof(DataType));
+	}
+
+	std::vector<DataType>& get_data() const
+	{
+		_raw_buffer.get_data(_local_copy.data());
+	}
+
+	std::vector<DataType>& get_data_range(size_t start_element, size_t element_count) const
+	{
+		_raw_buffer.get_data(_local_copy.data(), element_count, sizeof(DataType), start_element);
+	}
+
+	void map_data()
+	{
+		_mapped_data = reinterpret_cast<DataType*>(_raw_buffer.map_data());
+	}
+
+	DataType operator[](size_t index)
+	{
+		if (!_mapped_data)
 		{
-			bindpoint = get_bindpoint();
+			map_data();
 		}
-		glBindBuffer(bindpoint, get_gl_id());
-	}
-	BufferGeneric(BufferType btype=BufferType::VBO)
-	{
-		glGenBuffers(1, &get_gl_id());
-		switch (btype)
-		{
-		case BufferType::VBO:
-			this->set_bindpoint(GL_ARRAY_BUFFER);
-			break;
-		case BufferType::SSBO:
-			this->set_bindpoint(GL_SHADER_STORAGE_BUFFER);
-			break;
-		case BufferType::TBO:
-			this->set_bindpoint(GL_TEXTURE_BUFFER);
-			break;
-		case BufferType::UBO:
-			this->set_bindpoint(GL_UNIFORM_BUFFER);
-			break;
-		default:
-			throw "Unkown buffer type!";
-		}
+		assert(_raw_buffer.get_size() / sizeof(DataType) > index);
+		return _mapped_data[index];
 	}
 
-	//virtual void clear() = 0;
+	int get_size()
+	{
+		auto el_size = _raw_buffer.get_size()/sizeof(DataType);
+		return el_size;
+	}
 };
 
-template <class DataType>
-class BufferBase : public BufferGeneric
-{
-public:
-	BufferBase(BufferType in_type):
-		BufferGeneric(in_type)
-	{}
-	//virtual BufferBase copy();
-	//virtual void copy(BufferBase& dest_buffer);
-};
+}
 
-template <class DataType>
-class BufferImmutable : public BufferBase<DataType>
-{
-private:
-	const GLbitfield _flags;
-	
-public:
-	BufferImmutable(const std::vector<DataType>& in_data, BufferType btype=BufferType::VBO, GLbitfield flags=0):
-		_flags(flags),
-		BufferGeneric(btype)
-	{
-		this->bind();
-		glBufferStorage(this->get_bindpoint(),
-			in_data.size()*sizeof(DataType),
-			reinterpret_cast<void*>(in_data.data()),
-			flags);
-	}
-
-};
-
-template <class DataType>
-class Buffer : public BufferBase<DataType>
-{
-private:
-	GLuint _usage;
-public:
-	Buffer(const std::vector<DataType>& in_data, BufferType btype=BufferType::VBO, GLuint usage=GL_DYNAMIC_DRAW):
-		_usage(usage),
-		BufferBase<DataType>(btype)
-	{
-		this->bind();
-		glBufferData(this->get_bindpoint(),
-			in_data.size() * sizeof(DataType),
-			reinterpret_cast<const void*>(const_cast<const DataType*>(in_data.data())),
-			usage);
-	}
-
-	void set_data(const std::vector<DataType>& in_data, BufferType btype = BufferType::VBO, GLuint usage = GL_DYNAMIC_DRAW)
-	{
-		this->bind();
-		glBufferData(this->get_bindpoint(),
-			in_data.size() * sizeof(DataType),
-			reinterpret_cast<const void*>(const_cast<const DataType*>(in_data.data())),
-			usage);
-	}
-};
 
 #endif  // _BUFFER_H_
