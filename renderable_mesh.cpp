@@ -54,7 +54,7 @@ void RenderableMesh::set_scale(const glm::vec3& new_scale)
 	update_transform();
 }
 
-void RenderableMesh::bind()
+void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 {
 	_material->use();
 	GLenum err;
@@ -68,13 +68,13 @@ void RenderableMesh::bind()
 	{
 		printf("GL ERROR!: %d", err);
 	}
-	_material->set_transform(glm::mat4(1), "projection_matrix");
+	_material->set_transform(proj_mat, "projection_matrix");
 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
 	}
-	_material->set_transform(glm::mat4(1), "view_matrix");
+	_material->set_transform(view_mat, "view_matrix");
 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{

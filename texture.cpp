@@ -6,10 +6,11 @@
 namespace bgfx
 {
 
-int Texture::_current_texture_slot;
+int Texture::_current_texture_slot = 0;
 std::deque<int> Texture::_free_slots;
 
-Texture::Texture()
+Texture::Texture(const std::string& name):
+	_name(name)
 {
 	glGenTextures(1, &_gl_id);
 	if (!_free_slots.size())
@@ -30,15 +31,25 @@ Texture::~Texture()
 	glDeleteTextures(1, &_gl_id);
 }
 
-Texture::Texture(unsigned int size_x, unsigned int size_y):
+Texture::Texture(const std::string& name, unsigned int size_x, unsigned int size_y):
 	_size_x(size_x),
-	_size_y(size_y)
+	_size_y(size_y),
+	_name(name)
 {
 	glGenTextures(1, &_gl_id);
 	bind();
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size_x, size_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
@@ -51,6 +62,11 @@ void Texture::bind()
 void Texture::load_data()
 {
 
+}
+
+const std::string& Texture::name()
+{
+	return _name;
 }
 
 }  // namespace bgfx

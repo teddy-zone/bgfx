@@ -36,7 +36,7 @@ public:
 
 	void set_scale(const glm::vec3& new_scale);
 
-	void bind();
+	void bind(const glm::mat4& view_mat, const glm::mat4& proj_mat);
 
 	void draw();
 

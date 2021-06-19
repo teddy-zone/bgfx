@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include <string>
 
 namespace bgfx
 {
@@ -13,13 +14,16 @@ class Texture
 	int _texture_slot;
 	static int _current_texture_slot;
 	static std::deque<int> _free_slots;
+	std::string _name;
 
 public:
-	Texture();
+	Texture(const std::string& name);
 	~Texture();
-	Texture(unsigned int size_x, unsigned int size_y);
+	Texture(const std::string& name, unsigned int size_x, unsigned int size_y);
+
 	void bind();
 	void load_data();
+	const std::string& name();
 };
 
 }  // namespace bgfx

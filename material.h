@@ -1,6 +1,10 @@
 #pragma once
 
+#include <tuple>
+#include <regex>
+
 #include "shader.h"
+#include "texture.h"
 
 namespace bgfx
 {
@@ -10,17 +14,61 @@ extern std::string default_mat_fragment_shader;
 
 class Material
 {
+private:
+
+	class NodeInput; class NodeOutput;
+
+	struct NodeIO
+	{
+	public:
+		friend class Material;
+		std::string _var_name;
+		NodeIO(const std::string in_var_name) :
+			_var_name(in_var_name)
+		{}
+		const std::string& var_name() const
+		{
+			return _var_name;
+		}
+	};
+	
 	ShaderProgram _program;
 	std::shared_ptr<Shader> _vertex_shader;
 	std::shared_ptr<Shader> _fragment_shader;
+	std::vector<std::tuple<std::shared_ptr<Texture>, bool>> _textures;
+	std::string _vertex_shader_text;
+	std::string _fragment_shader_text;
+	std::string _texture_sampler_text;
+	std::string _texture_execution_text;
+	static std::shared_ptr<NodeOutput> _uv_node_out;
+	static std::shared_ptr<NodeOutput> _pos_node_out;
+	static std::shared_ptr<NodeOutput> _normal_node_out;
+
 public:
-	Material()
+
+	struct NodeInput : public NodeIO
 	{
-		_vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, default_mat_vertex_shader, true);
-		_fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, default_mat_fragment_shader, true);
-		_program.attach_shader(_vertex_shader);
-		_program.attach_shader(_fragment_shader);
-		_program.link();
+	public:
+		friend class Material;
+		NodeInput(const std::string& in_var_name) :
+			NodeIO(in_var_name) {}
+	};
+
+	struct NodeOutput : public NodeIO
+	{
+	public:
+		friend class Material;
+		NodeOutput(const std::string& in_var_name) :
+			NodeIO(in_var_name) {}
+	};
+
+	Material() :
+		_vertex_shader_text(default_mat_vertex_shader),
+		_fragment_shader_text(default_mat_fragment_shader),
+		_texture_sampler_text(""),
+		_texture_execution_text("")
+	{
+
 	}
 
 	void use()
@@ -32,6 +80,52 @@ public:
 	{
 		auto matrix_id = _program.get_uniform_location(mat_name);
 		_program.set_uniform_mat4(matrix_id, transform);
+	}
+
+	void add_texture(std::shared_ptr<Texture> in_tex, 
+		std::shared_ptr<NodeInput> tex_coord, 
+		std::shared_ptr<NodeOutput> tex_out)
+	{
+		_textures.push_back(std::make_tuple(in_tex, true));
+		_texture_sampler_text += "uniform sampler2D " + in_tex->name() + ";\n";
+		_texture_execution_text += "texture(" + in_tex->name() + ", " + tex_coord->var_name() + ");\n";
+	}
+
+	void compile()
+	{
+		// Compile our structures into our glsl fragment shader
+		_fragment_shader_text = std::regex_replace(_fragment_shader_text, 
+			std::regex("//_TEX_SAMPLERS_"), 
+			_texture_sampler_text);
+		_fragment_shader_text = std::regex_replace(_fragment_shader_text,
+			std::regex("//_TEX_EXECUTION_"),
+			_texture_execution_text);
+		printf("complete frag text: %s\n", _fragment_shader_text.c_str());
+		_vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, _vertex_shader_text, true);
+		_fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, _fragment_shader_text, true);
+		_program.attach_shader(_vertex_shader);
+		_program.attach_shader(_fragment_shader);
+		_program.link();
+	}
+
+	void make_connection(
+		std::shared_ptr<NodeOutput> output,
+		std::shared_ptr<NodeInput> input)
+	{
+
+	}
+
+	static const std::shared_ptr<NodeOutput> uv_node_out()
+	{
+		return _uv_node_out;
+	}
+	static const std::shared_ptr<NodeOutput> pos_node_out()
+	{
+		return _pos_node_out;
+	}
+	static const std::shared_ptr<NodeOutput> normal_node_out()
+	{
+		return _normal_node_out;
 	}
 };
 

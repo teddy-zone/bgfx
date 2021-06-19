@@ -9,6 +9,7 @@
 
 #include "renderable_mesh.h"
 #include "buffer.h"
+#include "camera.h"
 
 void glfw_error_callback(int error, const char* description)
 {
@@ -48,10 +49,37 @@ GLFWwindow* gl_init(int window_x, int window_y)
 
 int main()
 {
-    auto window = gl_init(1200, 800);
+    int x_res = 1200, y_res = 800;
+    auto window = gl_init(x_res, y_res);
+
+    auto camera = bgfx::Camera(x_res, y_res);
+    camera.set_position(glm::vec3(3, 3, 3));
+    camera.set_look_target(glm::vec3(0, 0, 0));
 
     auto quad_mesh = std::make_shared<bgfx::Mesh>();
     auto quad_mat = std::make_shared<bgfx::Material>();
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
+    auto quad_tex = std::make_shared<bgfx::Texture>("quad_tex", x_res, y_res);
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
+
+    std::shared_ptr<bgfx::Material::NodeOutput> tex_out;
+    quad_mat->add_texture(quad_tex, bgfx::Material::uv_node_out(), tex_out);
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
+    quad_mat->compile();
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
     //quad_mesh->set_vertices({ {1,0,0,0,1,0,0,0,1,1,1,0} });
     quad_mesh->set_vertices({ {1,0,0, 0,1,0, 0,0,0, 0,1,0, 1,1,0, 1,0,0} });
     bgfx::RenderableMesh quad;
@@ -69,9 +97,11 @@ int main()
         auto start = std::chrono::high_resolution_clock::now();
         // Keep running6
         glClear(GL_COLOR_BUFFER_BIT);
-
-        quad.bind();
-        quad.draw();
+        while ((err = glGetError()) != GL_NO_ERROR)
+        {
+            printf("GL ERROR!: %d", err);
+        }
+        camera.draw_object(quad);
 
         glfwSwapBuffers(window);
         time += 0.01;
