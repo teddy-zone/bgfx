@@ -5,6 +5,7 @@
 
 #include "shader.h"
 #include "texture.h"
+#include "material_node.h"
 
 namespace bgfx
 {
@@ -16,21 +17,6 @@ class Material
 {
 private:
 
-	class NodeInput; class NodeOutput;
-
-	struct NodeIO
-	{
-	public:
-		friend class Material;
-		std::string _var_name;
-		NodeIO(const std::string in_var_name) :
-			_var_name(in_var_name)
-		{}
-		const std::string& var_name() const
-		{
-			return _var_name;
-		}
-	};
 	
 	ShaderProgram _program;
 	std::shared_ptr<Shader> _vertex_shader;
@@ -43,24 +29,9 @@ private:
 	static std::shared_ptr<NodeOutput> _uv_node_out;
 	static std::shared_ptr<NodeOutput> _pos_node_out;
 	static std::shared_ptr<NodeOutput> _normal_node_out;
+    NodeGraph _node_graph;
 
 public:
-
-	struct NodeInput : public NodeIO
-	{
-	public:
-		friend class Material;
-		NodeInput(const std::string& in_var_name) :
-			NodeIO(in_var_name) {}
-	};
-
-	struct NodeOutput : public NodeIO
-	{
-	public:
-		friend class Material;
-		NodeOutput(const std::string& in_var_name) :
-			NodeIO(in_var_name) {}
-	};
 
 	Material() :
 		_vertex_shader_text(default_mat_vertex_shader),

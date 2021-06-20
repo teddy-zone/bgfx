@@ -8,7 +8,8 @@
 namespace bgfx
 {
 
-class Node;
+class NodeBase;
+
 class NodeInput;
 class NodeOutput;
 
@@ -16,7 +17,7 @@ class NodeInput
 {
 public:
 	NodeOutput* connection = nullptr;
-	Node* owner;
+	NodeBase* owner;
 };
 
 class NodeOutput
@@ -24,10 +25,10 @@ class NodeOutput
 public:
     std::vector<NodeInput*> connections;
 	NodeInput* connection = nullptr;
-	Node* owner;
+	NodeBase* owner;
 };
 
-class Node
+class NodeBase
 {
 	static int _id_counter;
 public:
@@ -36,20 +37,26 @@ public:
     std::string name;
 	std::map<std::string, NodeInput> inputs;
 	std::map<std::string, NodeOutput> outputs;
-	Node(const std::string& in_name):
-        name(in_name)
+};
+
+template <class T>
+class Node : public NodeBase
+{
+public:
+    T data;
+	Node(const std::string& in_name)
 	{
 		id = _id_counter;
 		_id_counter += 1;
-
+        name = in_name;
 	}
-	Node(const std::string& in_name, bool do_default):
-        name(in_name)
+	Node(const std::string& in_name, bool do_default)
 	{
 		id = _id_counter;
 		_id_counter += 1;
         add_input("i1");
         add_output("o1");
+        name = in_name;
 	}
 	void add_input(const std::string& name)
 	{
@@ -80,18 +87,19 @@ public:
     }
 };
 
+template <class T>
 class NodeGraph
 {
-	std::map<std::string, Node*> _nodes;
+	std::map<std::string, Node<T>*> _nodes;
 public:
-	void add_node(Node* in_node)
+	void add_node(Node<T>* in_node)
 	{
 		_nodes[in_node->name] = in_node;
 	}
 
-	std::vector<Node*> sort_nodes()
+	std::vector<Node<T>*> sort_nodes()
 	{
-		std::vector<Node*> sortable_nodes;
+		std::vector<Node<T>*> sortable_nodes;
 
 		for (auto& node : _nodes)
 		{
@@ -101,7 +109,7 @@ public:
 			}
             sortable_nodes.push_back(node.second);
 		}
-        std::sort(sortable_nodes.begin(), sortable_nodes.end(), [](const Node* a, const Node* b)
+        std::sort(sortable_nodes.begin(), sortable_nodes.end(), [](const NodeBase* a, const NodeBase* b)
             {
                 return a->rank < b->rank;
             }
@@ -109,7 +117,7 @@ public:
         return sortable_nodes;
 	}
 
-	void rank_up_node_tree(Node* in_node)
+	void rank_up_node_tree(NodeBase* in_node)
 	{
 		for (auto& output : in_node->outputs)
 		{
