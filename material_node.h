@@ -16,6 +16,8 @@ class NodeOutput;
 class NodeInput
 {
 public:
+    std::string name;
+    std::string type;
 	NodeOutput* connection = nullptr;
 	NodeBase* owner;
 };
@@ -23,6 +25,8 @@ public:
 class NodeOutput
 {
 public:
+    std::string name;
+    std::string type;
     std::vector<NodeInput*> connections;
 	NodeInput* connection = nullptr;
 	NodeBase* owner;
@@ -53,15 +57,19 @@ public:
         add_output("o1");
         name = in_name;
 	}
-	void add_input(const std::string& name)
+	void add_input(const std::string& name, const std::string& type)
 	{
 		inputs[name] = NodeInput();
 		inputs[name].owner = this;
+		inputs[name].name = name;
+        inputs[name].type = type;
 	}
-	void add_output(const std::string& name)
+	void add_output(const std::string& name, const std::string& type)
 	{
 		outputs[name] = NodeOutput();
 		outputs[name].owner = this;
+		outputs[name].name = name;
+        outputs[name].type = type;
 	}
 	bool has_input_connections()
 	{
@@ -74,6 +82,12 @@ public:
 		}
 		return false;
 	}
+
+    void connect(NodeInput* input)
+    {
+        input->connection = &(outputs.begin()->second);
+        outputs.begin()->second.connections.push_back(input);
+    }
 
     void connect(const std::string& output_name, NodeInput* input)
     {

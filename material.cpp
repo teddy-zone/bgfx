@@ -36,11 +36,11 @@ in vec3 pos; // specify a color output to the fragment shader
 in vec3 norm; // specify a color output to the fragment shader
 in vec2 uv;
 
-//_TEX_SAMPLERS_
+//_UNIFORMS_
 
 void main()
 {
-    //_TEX_EXECUTION_
+    //_NODE_ASSEMBLY_
     gl_FragColor = vertex_color;
 }
 

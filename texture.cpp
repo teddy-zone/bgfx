@@ -36,9 +36,16 @@ Texture::Texture(const std::string& name, unsigned int size_x, unsigned int size
 	_size_y(size_y),
 	_name(name)
 {
+	_texture_slot = _current_texture_slot;
+	_current_texture_slot += 1;
 	glGenTextures(1, &_gl_id);
-	bind();
 	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
+	bind();
+	
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);

@@ -75,13 +75,16 @@ int main()
     bgfx::Material::MatNode* tex_out;
     tex_out = quad_mat->add_texture(quad_tex);
     auto uv_node = quad_mat->uv_node();
-    uv_node->connect("uv_coord", &tex_out->inputs["tex_coord"]);
+    uv_node->connect("uv", &tex_out->inputs["tex_coord"]);
+    tex_out->connect(&quad_mat->frag_color_node()->inputs["gl_FragColor"]);
+    quad_mat->compile();
+
+    return 1;
 
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);
     }
-    quad_mat->compile();
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);
