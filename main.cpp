@@ -10,6 +10,7 @@
 #include "renderable_mesh.h"
 #include "buffer.h"
 #include "camera.h"
+#include "material_node.h"
 
 void glfw_error_callback(int error, const char* description)
 {
@@ -49,6 +50,8 @@ GLFWwindow* gl_init(int window_x, int window_y)
 
 int main()
 {
+
+
     int x_res = 1200, y_res = 800;
     auto window = gl_init(x_res, y_res);
 
