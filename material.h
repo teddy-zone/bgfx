@@ -15,6 +15,10 @@ extern std::string default_mat_fragment_shader;
 
 class Material
 {
+public:
+
+    typedef Node<std::string> MatNode;
+
 private:
 
 	
@@ -26,10 +30,12 @@ private:
 	std::string _fragment_shader_text;
 	std::string _texture_sampler_text;
 	std::string _texture_execution_text;
-	static std::shared_ptr<NodeOutput> _uv_node_out;
-	static std::shared_ptr<NodeOutput> _pos_node_out;
-	static std::shared_ptr<NodeOutput> _normal_node_out;
-    NodeGraph _node_graph;
+    std::vector<std::pair<std::string,std::string>> _uniforms;
+    MatNode* _uv_node;
+    MatNode* _pos_node;
+    MatNode* _norm_node;
+
+    NodeGraph<std::string> _node_graph;
 
 public:
 
@@ -39,7 +45,15 @@ public:
 		_texture_sampler_text(""),
 		_texture_execution_text("")
 	{
-
+        _uv_node = new MatNode("uv");
+        _uv_node->add_output("uv_coord");
+        _pos_node = new MatNode("pos");
+        _pos_node->add_output("position");
+        _norm_node = new MatNode("norm");
+        _norm_node->add_output("normal");
+        _node_graph.add_node(_uv_node);
+        _node_graph.add_node(_pos_node);
+        _node_graph.add_node(_norm_node);
 	}
 
 	void use()
@@ -53,18 +67,26 @@ public:
 		_program.set_uniform_mat4(matrix_id, transform);
 	}
 
-	void add_texture(std::shared_ptr<Texture> in_tex, 
-		std::shared_ptr<NodeInput> tex_coord, 
-		std::shared_ptr<NodeOutput> tex_out)
+	MatNode* add_texture(std::shared_ptr<Texture> in_tex)
 	{
+        MatNode* tex_node = new MatNode(in_tex->name());
+        tex_node->add_input("tex_coord");
+        tex_node->add_output("tex_value");
+        _node_graph.add_node(tex_node);
 		_textures.push_back(std::make_tuple(in_tex, true));
-		_texture_sampler_text += "uniform sampler2D " + in_tex->name() + ";\n";
-		_texture_execution_text += "texture(" + in_tex->name() + ", " + tex_coord->var_name() + ");\n";
+        _uniforms.push_back(std::pair<std::string,std::string>("sampler2d", in_tex->name()));
+        tex_node->data = "texture(" + in_tex->name() + ", " + "tex_coord" + ");\n";
+        return tex_node;
 	}
 
 	void compile()
 	{
 		// Compile our structures into our glsl fragment shader
+        std::string uniform_shader_string;
+        for (auto& [uni_type, uni_name] : _uniforms)
+        {
+            uniform_shader_string += "uniform " + uni_type + " " + uni_name;
+        }
 		_fragment_shader_text = std::regex_replace(_fragment_shader_text, 
 			std::regex("//_TEX_SAMPLERS_"), 
 			_texture_sampler_text);
@@ -86,17 +108,17 @@ public:
 
 	}
 
-	static const std::shared_ptr<NodeOutput> uv_node_out()
+	MatNode* uv_node()
 	{
-		return _uv_node_out;
+		return _uv_node;
 	}
-	static const std::shared_ptr<NodeOutput> pos_node_out()
+	MatNode* pos_node()
 	{
-		return _pos_node_out;
+		return _pos_node;
 	}
-	static const std::shared_ptr<NodeOutput> normal_node_out()
+	MatNode* normal_node()
 	{
-		return _normal_node_out;
+		return _norm_node;
 	}
 };
 

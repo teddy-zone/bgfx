@@ -72,8 +72,11 @@ int main()
         printf("GL ERROR!: %d", err);
     }
 
-    std::shared_ptr<bgfx::Material::NodeOutput> tex_out;
-    quad_mat->add_texture(quad_tex, bgfx::Material::uv_node_out(), tex_out);
+    bgfx::Material::MatNode* tex_out;
+    tex_out = quad_mat->add_texture(quad_tex);
+    auto uv_node = quad_mat->uv_node();
+    uv_node->connect("uv_coord", &tex_out->inputs["tex_coord"]);
+
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);

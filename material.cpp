@@ -3,10 +3,6 @@
 namespace bgfx
 {
 
-std::shared_ptr<Material::NodeOutput> Material::_uv_node_out = std::make_shared<NodeOutput>("uv");
-std::shared_ptr<Material::NodeOutput> Material::_pos_node_out = std::make_shared<NodeOutput>("pos");
-std::shared_ptr<Material::NodeOutput> Material::_normal_node_out = std::make_shared<NodeOutput>("norm");
-
 std::string default_mat_vertex_shader = R"V0G0N(
 
 #version 430 core

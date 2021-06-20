@@ -30,7 +30,6 @@ public:
 
 class NodeBase
 {
-	static int _id_counter;
 public:
 	int id;
 	int rank = 0;
@@ -46,14 +45,10 @@ public:
     T data;
 	Node(const std::string& in_name)
 	{
-		id = _id_counter;
-		_id_counter += 1;
         name = in_name;
 	}
 	Node(const std::string& in_name, bool do_default)
 	{
-		id = _id_counter;
-		_id_counter += 1;
         add_input("i1");
         add_output("o1");
         name = in_name;
