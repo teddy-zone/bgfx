@@ -41,7 +41,7 @@ in vec2 uv;
 void main()
 {
     //_NODE_ASSEMBLY_
-    gl_FragColor = vertex_color;
+    //gl_FragColor = vertex_color;
 }
 
 )V0G0N";

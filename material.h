@@ -25,7 +25,7 @@ private:
 	ShaderProgram _program;
 	std::shared_ptr<Shader> _vertex_shader;
 	std::shared_ptr<Shader> _fragment_shader;
-	std::vector<std::tuple<std::shared_ptr<Texture>, bool>> _textures;
+	std::vector<std::shared_ptr<Texture>> _textures;
 	std::string _vertex_shader_text;
 	std::string _fragment_shader_text;
 	std::string _texture_sampler_text;
@@ -77,7 +77,7 @@ public:
         tex_node->add_input("tex_coord", "vec2");
         tex_node->add_output("tex_value", "vec4");
         _node_graph.add_node(tex_node);
-		_textures.push_back(std::make_tuple(in_tex, true));
+		_textures.push_back(in_tex);
         _uniforms.push_back(std::pair<std::string,std::string>("sampler2D", in_tex->name()));
         tex_node->data = "vec4 tex_value = texture(" + in_tex->name() + ", " + "tex_coord" + ");\n";
         return tex_node;
@@ -114,9 +114,38 @@ public:
 		printf("complete frag text: %s\n", _fragment_shader_text.c_str());
 		_vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, _vertex_shader_text, true);
 		_fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, _fragment_shader_text, true);
+
+		GLenum err;
 		_program.attach_shader(_vertex_shader);
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			printf("GL ERROR!: %d", err);
+		}
 		_program.attach_shader(_fragment_shader);
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			printf("GL ERROR!: %d", err);
+		}
 		_program.link();
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			printf("GL ERROR!: %d", err);
+		}
+		_program.use();
+        for (auto& tex : _textures)
+        {
+			
+			auto loc = _program.get_uniform_location(tex->name());
+			while ((err = glGetError()) != GL_NO_ERROR)
+			{
+				printf("GL ERROR!: %d", err);
+			}
+			glUniform1i(loc, tex->id());
+			while ((err = glGetError()) != GL_NO_ERROR)
+			{
+				printf("GL ERROR!: %d", err);
+			}
+        }
 	}
 
 	void make_connection(

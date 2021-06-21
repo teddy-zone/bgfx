@@ -30,7 +30,8 @@ protected:
 
 public:
 	Mesh();
-	void set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals=false);
+	void set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals = false);
+	void set_uv_coords(const std::vector<float>& in_coords);
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();
 	void bind();

@@ -9,6 +9,7 @@ Mesh::Mesh()
 {
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertices), "vpos", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_normals), "vnorm", 3, bgfx::AttributeType::FLOAT);
+	_vao.add_buffer(dynamic_cast<BufferBase*>(&_uv), "vuv", 2, bgfx::AttributeType::FLOAT);
 }
 
 void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals)
@@ -19,6 +20,12 @@ void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_norm
 	}
 	_vertices.set_data(in_vertices);
 }
+
+void Mesh::set_uv_coords(const std::vector<float>& in_coords)
+{
+	_uv.set_data(in_coords);
+}
+
 
 void Mesh::calc_normals(const std::vector<float>& in_vertices)
 {

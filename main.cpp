@@ -72,14 +72,23 @@ int main()
         printf("GL ERROR!: %d", err);
     }
 
+    std::vector<unsigned char> test_tex = {{255,0,0,255, 0,255,0,255, 0,0,255,255, 255,255,0,255}};
+    quad_tex->load_data(test_tex.data(), 2, 2);
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
     bgfx::Material::MatNode* tex_out;
     tex_out = quad_mat->add_texture(quad_tex);
     auto uv_node = quad_mat->uv_node();
     uv_node->connect("uv", &tex_out->inputs["tex_coord"]);
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
     tex_out->connect(&quad_mat->frag_color_node()->inputs["gl_FragColor"]);
     quad_mat->compile();
 
-    return 1;
 
     while ((err = glGetError()) != GL_NO_ERROR)
     {
@@ -91,6 +100,7 @@ int main()
     }
     //quad_mesh->set_vertices({ {1,0,0,0,1,0,0,0,1,1,1,0} });
     quad_mesh->set_vertices({ {1,0,0, 0,1,0, 0,0,0, 0,1,0, 1,1,0, 1,0,0} });
+    quad_mesh->set_uv_coords({ {1,0, 0,1, 0,0, 0,1, 1,1, 1,0} });
     bgfx::RenderableMesh quad;
     quad.set_mesh(quad_mesh);
     quad.set_material(quad_mat);

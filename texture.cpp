@@ -66,9 +66,12 @@ void Texture::bind()
 	glBindTexture(GL_TEXTURE_2D, _gl_id);
 }
 
-void Texture::load_data()
+void Texture::load_data(unsigned char* data, int in_size_x, int in_size_y)
 {
-
+    bind();
+    _size_x = in_size_x;
+    _size_y = in_size_y;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _size_x, _size_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 }
 
 const std::string& Texture::name()

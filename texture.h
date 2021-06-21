@@ -22,8 +22,9 @@ public:
 	Texture(const std::string& name, unsigned int size_x, unsigned int size_y);
 
 	void bind();
-	void load_data();
+    void load_data(unsigned char* data, int in_size_x, int in_size_y);
 	const std::string& name();
+	unsigned int id() { return _texture_slot; }
 };
 
 }  // namespace bgfx
