@@ -15,26 +15,35 @@ class NodeOutput;
 
 class NodeInput
 {
+	static int _id_counter;
 public:
+	int id;
+	NodeInput() : id(_id_counter++) {}
     std::string name;
     std::string type;
 	NodeOutput* connection = nullptr;
 	NodeBase* owner;
+	std::string id_string() { return std::to_string(id); }
 };
 
 class NodeOutput
 {
+	static int _id_counter;
 public:
+	int id;
+	NodeOutput(): id(_id_counter++) {}
     std::string name;
     std::string type;
     std::vector<NodeInput*> connections;
-	NodeInput* connection = nullptr;
+	//NodeInput* connection = nullptr;
 	NodeBase* owner;
+	std::string id_string() { return std::to_string(id); }
 };
 
 class NodeBase
 {
 public:
+	bool required = false;
 	int id;
 	int rank = 0;
     std::string name;

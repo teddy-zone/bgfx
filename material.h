@@ -52,11 +52,15 @@ public:
         _pos_node->add_output("pos", "vec3");
         _norm_node = new MatNode("norm");
         _norm_node->add_output("norm", "vec3");
+		_uv_node->required = true;
+		_norm_node->required = true;
+		_pos_node->required = true;
         _node_graph.add_node(_uv_node);
         _node_graph.add_node(_pos_node);
         _node_graph.add_node(_norm_node);
         _frag_color_node = new MatNode("frag_color");
         _frag_color_node->add_input("gl_FragColor", "");
+		_frag_color_node->required = true;
         _node_graph.add_node(_frag_color_node);
 	}
 
@@ -80,7 +84,20 @@ public:
 		_textures.push_back(in_tex);
         _uniforms.push_back(std::pair<std::string,std::string>("sampler2D", in_tex->name()));
         tex_node->data = "vec4 tex_value = texture(" + in_tex->name() + ", " + "tex_coord" + ");\n";
-        return tex_node;
+
+		return tex_node;
+	}
+
+	MatNode* sum_node(const std::string& type)
+	{
+		static int id_counter = 0;
+		MatNode* sum_node = new MatNode("sum" + std::to_string(id_counter++));
+		sum_node->add_input("in1", type);
+		sum_node->add_input("in2", type);
+		sum_node->add_output("sum_out", type);
+		sum_node->data = type + " sum_out = in1 + in2;\n";
+		_node_graph.add_node(sum_node);
+		return sum_node;
 	}
 
 	void compile()
@@ -95,14 +112,35 @@ public:
         auto sorted_nodes = _node_graph.sort_nodes();
         for (auto& node : sorted_nodes)
         {
-            for (auto& [input_name, input] : node->inputs)
-            {
-                if (input.connection)
-                {
-                    node_assembly_string += input.type + " " + input.name + " = " + input.connection->name + ";\n"; 
-                }
-            }
-            node_assembly_string += node->data; 
+			bool has_output = false;
+			for (auto& [output_name, output] : node->outputs)
+			{
+				if (output.connections.size())
+				{
+					node_assembly_string += output.type + " " + output.name + "_" + output.id_string() + ";\n";
+					has_output = true;
+				}
+			}
+			if (has_output || node->required)
+			{
+				node_assembly_string += "{\n";
+				for (auto& [input_name, input] : node->inputs)
+				{
+					if (input.connection)
+					{
+						node_assembly_string += input.type + " " + input.name + " = " + input.connection->name + "_" + input.connection->id_string() + ";\n";
+					}
+				}
+				node_assembly_string += node->data;
+				for (auto& [output_name, output] : node->outputs)
+				{
+					if (output.connections.size())
+					{
+						node_assembly_string += output.name + "_" + output.id_string() + " = " + output.name + ";\n";
+					}
+				}
+				node_assembly_string += "}\n";
+			}
             printf("Node name: %s\n", node->data.c_str());
         }
 		_fragment_shader_text = std::regex_replace(_fragment_shader_text, 
