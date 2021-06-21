@@ -8,6 +8,8 @@ namespace bgfx
 
 class Texture
 {
+
+
 	unsigned int _gl_id;
 	unsigned int _size_x;
 	unsigned int _size_y;
@@ -17,6 +19,12 @@ class Texture
 	std::string _name;
 
 public:
+	enum class InterpMode
+	{
+		LINEAR,
+		NEAREST
+	};
+
 	Texture(const std::string& name);
 	~Texture();
 	Texture(const std::string& name, unsigned int size_x, unsigned int size_y);
@@ -25,6 +33,8 @@ public:
     void load_data(unsigned char* data, int in_size_x, int in_size_y);
 	const std::string& name();
 	unsigned int id() { return _texture_slot; }
+	void set_interpolation_mode(InterpMode interp_mode);
+
 };
 
 }  // namespace bgfx

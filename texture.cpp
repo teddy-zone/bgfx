@@ -79,4 +79,24 @@ const std::string& Texture::name()
 	return _name;
 }
 
+void Texture::set_interpolation_mode(InterpMode interp_mode)
+{
+	GLenum gl_interp_enum = GL_LINEAR;
+
+	switch (interp_mode)
+	{
+	case InterpMode::LINEAR:
+		gl_interp_enum = GL_LINEAR;
+		break;
+	case InterpMode::NEAREST:
+		gl_interp_enum = GL_NEAREST;
+		break;
+	default:
+		break;
+	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_interp_enum);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_interp_enum);
+
+}
+
 }  // namespace bgfx

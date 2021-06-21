@@ -68,6 +68,8 @@ int main()
     std::vector<unsigned char> test_tex2 = {{0,0,0,255, 50,50,50,255, 150,150,150,255, 200,200,200,255}};
     quad_tex->load_data(test_tex.data(), 2, 2);
     quad_tex2->load_data(test_tex2.data(), 2, 2);
+    quad_tex->set_interpolation_mode(bgfx::Texture::InterpMode::NEAREST);
+    quad_tex2->set_interpolation_mode(bgfx::Texture::InterpMode::NEAREST);
 
     bgfx::Material::MatNode* tex_out;
     bgfx::Material::MatNode* tex_out2;
