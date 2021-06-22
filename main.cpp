@@ -1,3 +1,7 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
 #include <cstdio>
@@ -51,8 +55,23 @@ GLFWwindow* gl_init(int window_x, int window_y)
 
 int main()
 {
+    const char* glsl_version = "#version 150";
     int x_res = 1200, y_res = 800;
     auto window = gl_init(x_res, y_res);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
 
     auto camera = bgfx::Camera(x_res, y_res);
     camera.set_position(glm::vec3(3, 3, 3));
@@ -115,8 +134,14 @@ int main()
     int frame_count = 0;
     double frame_average = 0;
     glfwSwapInterval(0);
+
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
     while (!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
         auto start = std::chrono::high_resolution_clock::now();
         // Keep running6
         glClear(GL_COLOR_BUFFER_BIT);
@@ -125,6 +150,17 @@ int main()
             printf("GL ERROR!: %d", err);
         }
         camera.draw_object(quad);
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         time += 0.01;
