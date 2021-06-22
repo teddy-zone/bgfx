@@ -57,12 +57,6 @@
     <ClCompile Include="..\compute_shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\gl_object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\gl_octree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,12 +93,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\compute_shader.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gl_object.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gl_octree.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\material.h">

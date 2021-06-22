@@ -29,7 +29,6 @@ int main()
 
     auto quad_mesh = std::make_shared<bgfx::Mesh>();
     auto quad_mat = std::make_shared<bgfx::Material>();
-    GLenum err;
 
     auto quad_tex = std::make_shared<bgfx::Texture>("quad_tex", x_res, y_res);
     auto quad_tex2 = std::make_shared<bgfx::Texture>("quad_tex2", x_res, y_res);
@@ -68,22 +67,15 @@ int main()
     cs.set_code(bgfx::cs_string);
     cs.set_call_size(2, 2, 1);
     cs.compile();
-    while ((err = glGetError()) != GL_NO_ERROR)
-    {
-        printf("GL ERROR!: %d", err);
-    }
-    cs.run();
-    while ((err = glGetError()) != GL_NO_ERROR)
-    {
-        printf("GL ERROR!: %d", err);
-    }
 
-    glClearColor(0.5, 0.3, 0.2, 1.0);
+    cs.run();
+
+
     float time = 0;
     int fps_frame_count = 30;
     int frame_count = 0;
     double frame_average = 0;
-    glfwSwapInterval(0);
+
 
     bool show_demo_window = true;
     bool show_another_window = false;

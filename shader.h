@@ -8,8 +8,6 @@
 
 #include "glm/glm.hpp"
 
-#include "gl_object.h"
-
 class Shader
 {
 	friend class ShaderProgram;
@@ -39,13 +37,13 @@ public:
 
 	void link();
 
-	GLuint get_uniform_location(const std::string& uniform_name);
+	unsigned int get_uniform_location(const std::string& uniform_name);
 
-	void set_uniform_i1(GLuint uniform_id, GLint in_val);
+	void set_uniform_i1(unsigned int uniform_id, int in_val);
 
-	void set_uniform_1f(GLuint uniform_id, GLfloat in_val);
+	void set_uniform_1f(unsigned int uniform_id, float in_val);
 
-	void set_uniform_mat4(GLuint uniform_id, const glm::mat4& in_val);
+	void set_uniform_mat4(unsigned int uniform_id, const glm::mat4& in_val);
 
 	void use();
 };

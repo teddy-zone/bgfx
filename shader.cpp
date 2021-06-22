@@ -8,9 +8,8 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-#include "gl_object.h"
-
-
+#include "glad/gl.h"
+#include <GLFW/glfw3.h>
 
 Shader::Shader(Shader::Type in_type, const std::string in_string, bool source_text):
     _type(in_type)
@@ -95,22 +94,22 @@ void ShaderProgram::link()
 
 }
 
-GLuint ShaderProgram::get_uniform_location(const std::string& uniform_name)
+unsigned int ShaderProgram::get_uniform_location(const std::string& uniform_name)
 {
     return glGetUniformLocation(_gl_id, uniform_name.c_str());
 }
 
-void ShaderProgram::set_uniform_i1(GLuint uniform_id, GLint in_val)
+void ShaderProgram::set_uniform_i1(unsigned int uniform_id, int in_val)
 {
     glUniform1i(uniform_id, in_val);
 }
 
-void ShaderProgram::set_uniform_1f(GLuint uniform_id, GLfloat in_val)
+void ShaderProgram::set_uniform_1f(unsigned int uniform_id, float in_val)
 {
     glUniform1f(uniform_id, in_val);
 }
 
-void ShaderProgram::set_uniform_mat4(GLuint uniform_id, const glm::mat4& in_val)
+void ShaderProgram::set_uniform_mat4(unsigned int uniform_id, const glm::mat4& in_val)
 {
     glUniformMatrix4fv(uniform_id, 1, false, glm::value_ptr(in_val));
 }

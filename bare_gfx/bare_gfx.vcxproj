@@ -40,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -118,6 +118,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\tjwal\projects\bare_gfx\include;$(ProjectDir)..\imgui;$(ProjectDir)..\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,8 +153,6 @@
     <ClCompile Include="..\compute_shader.cpp" />
     <ClCompile Include="..\context.cpp" />
     <ClCompile Include="..\gl.c" />
-    <ClCompile Include="..\gl_object.cpp" />
-    <ClCompile Include="..\gl_octree.cpp" />
     <ClCompile Include="..\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="..\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\imgui\imgui.cpp" />
@@ -176,8 +175,6 @@
     <ClInclude Include="..\camera.h" />
     <ClInclude Include="..\compute_shader.h" />
     <ClInclude Include="..\context.h" />
-    <ClInclude Include="..\gl_object.h" />
-    <ClInclude Include="..\gl_octree.h" />
     <ClInclude Include="..\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="..\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="..\imgui\imconfig.h" />
