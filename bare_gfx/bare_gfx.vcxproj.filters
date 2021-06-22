@@ -87,6 +87,9 @@
     <ClCompile Include="..\imgui\backends\imgui_impl_glfw.cpp">
       <Filter>Source Files\imgui\backends</Filter>
     </ClCompile>
+    <ClCompile Include="..\context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\buffer.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="..\imgui\backends\imgui_impl_glfw.h">
       <Filter>Source Files\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\context.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

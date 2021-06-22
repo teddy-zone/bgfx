@@ -150,6 +150,7 @@
     <ClCompile Include="..\buffer.cpp" />
     <ClCompile Include="..\camera.cpp" />
     <ClCompile Include="..\compute_shader.cpp" />
+    <ClCompile Include="..\context.cpp" />
     <ClCompile Include="..\gl.c" />
     <ClCompile Include="..\gl_object.cpp" />
     <ClCompile Include="..\gl_octree.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="..\buffer.h" />
     <ClInclude Include="..\camera.h" />
     <ClInclude Include="..\compute_shader.h" />
+    <ClInclude Include="..\context.h" />
     <ClInclude Include="..\gl_object.h" />
     <ClInclude Include="..\gl_octree.h" />
     <ClInclude Include="..\imgui\backends\imgui_impl_glfw.h" />

@@ -1,9 +1,6 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 
-#include "glad/gl.h"
-#include <GLFW/glfw3.h>
+
+
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -11,67 +8,20 @@
 #include <chrono>
 #include <random>
 
+#include "context.h"
 #include "renderable_mesh.h"
 #include "buffer.h"
 #include "camera.h"
 #include "material_node.h"
 #include "compute_shader.h"
 
-void glfw_error_callback(int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
-
-static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-GLFWwindow* gl_init(int window_x, int window_y)
-{
-    glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit())
-    {
-        printf("GLFW init failed!\n");
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    //glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    int x_res = window_x, y_res = window_y;
-    GLFWwindow* window = glfwCreateWindow(x_res, y_res, "My Title", NULL, NULL);
-    if (!window)
-    {
-        // Window or context creation failed
-    }
-
-    glfwSetKeyCallback(window, glfw_key_callback);
-
-    glfwMakeContextCurrent(window);
-    gladLoadGL(glfwGetProcAddress);
-    return window;
-}
 
 int main()
 {
-    const char* glsl_version = "#version 150";
+
     int x_res = 1200, y_res = 800;
-    auto window = gl_init(x_res, y_res);
+    bgfx::Context context(x_res, y_res);
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
 
     auto camera = bgfx::Camera(x_res, y_res);
     camera.set_position(glm::vec3(3, 3, 3));
@@ -137,46 +87,18 @@ int main()
 
     bool show_demo_window = true;
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    while (!glfwWindowShouldClose(window))
+    while (!context.bgfx_window_should_close())
     {
-        glfwPollEvents();
-        auto start = std::chrono::high_resolution_clock::now();
-        // Keep running6
-        glClear(GL_COLOR_BUFFER_BIT);
-        while ((err = glGetError()) != GL_NO_ERROR)
-        {
-            printf("GL ERROR!: %d", err);
-        }
+        context.start_frame();
         camera.draw_object(quad);
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         //if (show_demo_window)
         //    ImGui::ShowDemoWindow(&show_demo_window);
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(window);
-        time += 0.01;
-        //quad.translate(glm::vec3(0, 0, 0.001));
-        frame_count += 1;
-        auto end = std::chrono::high_resolution_clock::now();
-        double elapsed_micro = std::chrono::duration<double, std::micro>(end - start).count();
-        frame_average += elapsed_micro;
-        if (frame_count == 30)
-        {
-            
-            printf("FPS: %f\n", 30.0 / (frame_average / 1000000));
-            frame_count = 0;
-            start = end;
-            frame_average = 0;
-        }
+        context.end_frame();
     }
 }
 /*
