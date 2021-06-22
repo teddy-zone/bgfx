@@ -19,6 +19,10 @@ public:
 	{
 		_raw_buffer.bind();
 	}
+	unsigned int get_id()
+	{
+		return _raw_buffer._gl_id;
+	}
 };
 
 // Generic data type type-safe buffer class

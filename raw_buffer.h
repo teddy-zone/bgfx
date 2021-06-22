@@ -18,10 +18,10 @@ enum class BindPoint
 
 class RawBuffer
 {
-	unsigned int _gl_id;
 	int _size;
 
 public:
+	unsigned int _gl_id;
 	explicit RawBuffer();
 	~RawBuffer();
 	void bind(BindPoint bind_point=BindPoint::ARRAY_BUFFER);

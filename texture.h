@@ -32,7 +32,8 @@ public:
 	void bind();
     void load_data(unsigned char* data, int in_size_x, int in_size_y);
 	const std::string& name();
-	unsigned int id() { return _texture_slot; }
+	unsigned int slot() { return _texture_slot; }
+	unsigned int gl_id() { return _gl_id; }
 	void set_interpolation_mode(InterpMode interp_mode);
 
 };

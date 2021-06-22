@@ -178,7 +178,7 @@ public:
 			{
 				printf("GL ERROR!: %d", err);
 			}
-			glUniform1i(loc, tex->id());
+			glUniform1i(loc, tex->slot());
 			while ((err = glGetError()) != GL_NO_ERROR)
 			{
 				printf("GL ERROR!: %d", err);

@@ -50,7 +50,7 @@ Texture::Texture(const std::string& name, unsigned int size_x, unsigned int size
 	{
 		printf("GL ERROR!: %d", err);
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size_x, size_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size_x, size_y, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	while ((err = glGetError()) != GL_NO_ERROR)
@@ -71,7 +71,7 @@ void Texture::load_data(unsigned char* data, int in_size_x, int in_size_y)
     bind();
     _size_x = in_size_x;
     _size_y = in_size_y;
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _size_x, _size_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, _size_x, _size_y, 0, GL_RGBA, GL_FLOAT, data);
 }
 
 const std::string& Texture::name()
@@ -94,6 +94,7 @@ void Texture::set_interpolation_mode(InterpMode interp_mode)
 	default:
 		break;
 	}
+	bind();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_interp_enum);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_interp_enum);
 

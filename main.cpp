@@ -11,6 +11,7 @@
 #include "buffer.h"
 #include "camera.h"
 #include "material_node.h"
+#include "compute_shader.h"
 
 void glfw_error_callback(int error, const char* description)
 {
@@ -74,17 +75,17 @@ int main()
     bgfx::Material::MatNode* tex_out;
     bgfx::Material::MatNode* tex_out2;
     tex_out = quad_mat->add_texture(quad_tex);
-    tex_out2 = quad_mat->add_texture(quad_tex2);
+    //tex_out2 = quad_mat->add_texture(quad_tex2);
     auto sum_node = quad_mat->sum_node("vec4");
     auto uv_node = quad_mat->uv_node();
-    tex_out->connect(&sum_node->inputs["in1"]);
-    tex_out2->connect(&sum_node->inputs["in2"]);
+    //tex_out->connect(&sum_node->inputs["in1"]);
+    //tex_out2->connect(&sum_node->inputs["in2"]);
+    tex_out->connect(&quad_mat->frag_color_node()->inputs["gl_FragColor"]);
     uv_node->connect("uv", &tex_out->inputs["tex_coord"]);
-    uv_node->connect("uv", &tex_out2->inputs["tex_coord"]);
-    sum_node->connect(&quad_mat->frag_color_node()->inputs["gl_FragColor"]);
+    //uv_node->connect("uv", &tex_out2->inputs["tex_coord"]);
+    //sum_node->connect(&quad_mat->frag_color_node()->inputs["gl_FragColor"]);
 
     quad_mat->compile();
-
 
     //quad_mesh->set_vertices({ {1,0,0,0,1,0,0,0,1,1,1,0} });
     quad_mesh->set_vertices({ {1,0,0, 0,1,0, 0,0,0, 0,1,0, 1,1,0, 1,0,0} });
@@ -92,6 +93,21 @@ int main()
     bgfx::RenderableMesh quad;
     quad.set_mesh(quad_mesh);
     quad.set_material(quad_mat);
+
+    bgfx::ComputeShader cs;
+    cs.add_texture(quad_tex, 1);
+    cs.set_code(bgfx::cs_string);
+    cs.set_call_size(2, 2, 1);
+    cs.compile();
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
+    cs.run();
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
 
     glClearColor(0.5, 0.3, 0.2, 1.0);
     float time = 0;
