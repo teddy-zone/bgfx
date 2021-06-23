@@ -1,9 +1,8 @@
-#pragma once
+#ifndef _CONTEXT_H_
+#define _CONTEXT_H_
 
 #include <cstdio>
 #include <chrono>
-
-
 
 struct GLFWwindow;
 
@@ -31,6 +30,10 @@ public:
     void start_frame();
 
     void end_frame();
+
+    GLFWwindow* get_window() { return _window; }
 };
 
 }  // namespace bgfx
+
+#endif  // _CONTEXT_H_
