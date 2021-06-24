@@ -17,7 +17,7 @@ class Camera
 	float _height;
 
 public:
-	Camera(int width, int height);
+	Camera(float width, float height);
 	void set_position(const glm::vec3& new_pos);
 	void translate(const glm::vec3& trans);
 	void set_look_vector(const glm::vec3& new_look);

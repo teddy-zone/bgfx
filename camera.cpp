@@ -5,7 +5,7 @@
 namespace bgfx
 {
 
-Camera::Camera(int width, int height):
+Camera::Camera(float width, float height):
 	_height(height),
 	_width(width)
 {

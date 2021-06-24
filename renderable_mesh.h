@@ -11,12 +11,14 @@ namespace bgfx
 
 class RenderableMesh
 {
+
 	glm::vec3 _position;
 	glm::mat4 _rotation;
 	glm::vec3 _scale;
 	glm::mat4 _transform;
 	std::shared_ptr<Mesh> _mesh;
 	std::shared_ptr<Material> _material;
+	
 
 	void update_transform();
 
