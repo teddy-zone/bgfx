@@ -33,7 +33,8 @@ private:
     std::vector<std::pair<std::string,std::string>> _uniforms;
     MatNode* _uv_node;
     MatNode* _pos_node;
-    MatNode* _norm_node;
+	MatNode* _norm_node;
+	MatNode* _vert_color_node;
     MatNode* _frag_color_node;
 
     NodeGraph<std::string> _node_graph;
@@ -52,12 +53,16 @@ public:
         _pos_node->add_output("pos", "vec3");
         _norm_node = new MatNode("norm");
         _norm_node->add_output("norm", "vec3");
+		_vert_color_node = new MatNode("norm");
+		_vert_color_node->add_output("color", "vec4");
 		_uv_node->required = true;
 		_norm_node->required = true;
 		_pos_node->required = true;
+		_vert_color_node->required = true;
         _node_graph.add_node(_uv_node);
         _node_graph.add_node(_pos_node);
-        _node_graph.add_node(_norm_node);
+		_node_graph.add_node(_norm_node);
+		_node_graph.add_node(_vert_color_node);
         _frag_color_node = new MatNode("frag_color");
         _frag_color_node->add_input("gl_FragColor", "");
 		_frag_color_node->required = true;
@@ -120,6 +125,10 @@ public:
 	MatNode* normal_node()
 	{
 		return _norm_node;
+	}
+	MatNode* vertex_color_node()
+	{
+		return _vert_color_node;
 	}
 	MatNode* frag_color_node()
 	{
