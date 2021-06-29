@@ -117,10 +117,10 @@ void Context::end_frame()
     auto end = std::chrono::high_resolution_clock::now();
     double elapsed_micro = std::chrono::duration<double, std::micro>(end - start).count();
     frame_average += elapsed_micro;
-    if (frame_count == 30)
+    if (frame_count == 300)
     {
 
-        printf("FPS: %f\n", 30.0 / (frame_average / 1000000));
+        printf("FPS: %f\n", 300.0 / (frame_average / 1000000));
         frame_count = 0;
         start = end;
         frame_average = 0;

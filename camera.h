@@ -12,11 +12,13 @@ class Camera
 	glm::vec3 _look;
 	glm::mat4 _view_mat;
 	glm::mat4 _projection_mat;
+
+
+public:
 	float _fov = 60;
 	float _width;
 	float _height;
 
-public:
 	Camera(float width, float height);
 	void set_position(const glm::vec3& new_pos);
 	void translate(const glm::vec3& trans);
@@ -25,6 +27,7 @@ public:
 	const glm::mat4& get_view_mat();
 	const glm::mat4& get_projection_mat();
 	void draw_object(RenderableMesh& in_mesh);
+
 };
 
 }  // namespace bgfx

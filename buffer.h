@@ -43,7 +43,7 @@ public:
 		set_data(in_data);
 	}
 
-	void set_data(const std::vector<DataType>& in_data)
+	void set_data(const std::vector<DataType>& in_data, BindPoint bind_point=BindPoint::ARRAY_BUFFER)
 	{
 		_raw_buffer.buffer_data(in_data.data(), in_data.size(), sizeof(DataType));
 	}

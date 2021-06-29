@@ -114,6 +114,11 @@ void ShaderProgram::set_uniform_mat4(unsigned int uniform_id, const glm::mat4& i
     glUniformMatrix4fv(uniform_id, 1, false, glm::value_ptr(in_val));
 }
 
+void ShaderProgram::set_uniform_3f(const std::string& in_name, const glm::vec3& in_val)
+{
+    glUniform3fv(get_uniform_location(in_name), 1, glm::value_ptr(in_val));
+}
+
 void ShaderProgram::use()
 {
     glUseProgram(_gl_id);

@@ -23,7 +23,7 @@ public:
 	explicit RawBuffer();
 	~RawBuffer();
 	void bind(BindPoint bind_point=BindPoint::ARRAY_BUFFER);
-	void buffer_data(const void* data, size_t element_count, size_t element_size);
+	void buffer_data(const void* data, size_t element_count, size_t element_size, BindPoint bind_point=BindPoint::ARRAY_BUFFER);
 	void buffer_storage(const void* data, size_t element_count, size_t element_size);
 	void buffer_sub_data(const void* data, size_t data_start, size_t element_count, size_t element_size);
 	void* map_data();

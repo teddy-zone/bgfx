@@ -4,24 +4,14 @@
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
 
+
+
 namespace bgfx
 {
 
-
-RawBuffer::RawBuffer():
-	_size(0)
+GLenum bind_point_to_enum(BindPoint bind_point)
 {
-	glGenBuffers(1, &_gl_id);
-}
-
-RawBuffer::~RawBuffer()
-{
-	glDeleteBuffers(1, &_gl_id);
-}
-
-void RawBuffer::bind(BindPoint bind_point)
-{
-	GLuint gl_bind_point = GL_ARRAY_BUFFER;
+	GLenum gl_bind_point;
 	switch (bind_point)
 	{
 	case BindPoint::ARRAY_BUFFER:
@@ -45,13 +35,31 @@ void RawBuffer::bind(BindPoint bind_point)
 	default:
 		break;
 	}
+	return gl_bind_point;
+}
+
+RawBuffer::RawBuffer():
+	_size(0)
+{
+	glGenBuffers(1, &_gl_id);
+}
+
+RawBuffer::~RawBuffer()
+{
+	glDeleteBuffers(1, &_gl_id);
+}
+
+void RawBuffer::bind(BindPoint bind_point)
+{
+	GLuint gl_bind_point = bind_point_to_enum(bind_point);
 	glBindBuffer(gl_bind_point, _gl_id);
 }
 
-void RawBuffer::buffer_data(const void* data, size_t element_count, size_t element_size)
+void RawBuffer::buffer_data(const void* data, size_t element_count, size_t element_size, BindPoint bind_point)
 {
-	bind(BindPoint::ARRAY_BUFFER);
-	glBufferData(GL_ARRAY_BUFFER, element_count * element_size, data, GL_DYNAMIC_DRAW);
+	GLuint gl_bind_point = bind_point_to_enum(bind_point);
+	bind(bind_point);
+	glBufferData(gl_bind_point, element_count * element_size, data, GL_DYNAMIC_DRAW);
 	_size = element_count * element_size;
 }
 

@@ -24,7 +24,7 @@ private:
 	int _call_size_z;
 
 	std::shared_ptr<Shader> _shader;
-	ShaderProgram _program;
+	
 
 	std::map<int, std::shared_ptr<BufferBase>> _buffers;
 	std::map<int, std::shared_ptr<Texture>> _textures;
@@ -32,6 +32,7 @@ private:
 	std::string _user_code;
 
 public:
+	ShaderProgram _program;
 
 	void set_local_size(int x, int y, int z)
 	{
