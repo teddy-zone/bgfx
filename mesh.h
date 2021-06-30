@@ -34,6 +34,7 @@ public:
 	void set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals = false);
 	void set_uv_coords(const std::vector<float>& in_coords);
 	void set_vertex_colors(const std::vector<float>& in_colors);
+	void set_vertex_color(const glm::vec3& in_color, int index);
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();
 	void bind();

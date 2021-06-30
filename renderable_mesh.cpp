@@ -92,4 +92,9 @@ void RenderableMesh::set_mesh(std::shared_ptr<Mesh> in_mesh)
 	_mesh = in_mesh;
 }
 
+std::shared_ptr<Mesh> RenderableMesh::get_mesh()
+{
+	return _mesh;
+}
+
 }  // namespace bgfx
