@@ -60,6 +60,10 @@ void Material::compile()
 	{
 		uniform_shader_string += "uniform " + uni_type + " " + uni_name + ";\n";
 	}
+	for (auto& [uni_type, uni_name, value] : _constants)
+	{
+		uniform_shader_string += "uniform " + uni_type + " " + uni_name + " = " + value + ";\n";
+	}
 	auto sorted_nodes = _node_graph.sort_nodes();
 	for (auto& node : sorted_nodes)
 	{

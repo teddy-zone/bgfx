@@ -38,6 +38,7 @@ public:
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();
 	void bind();
+	void load_obj(const std::string& in_file);
 };
 
 }

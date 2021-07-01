@@ -30,7 +30,8 @@ private:
 	std::string _fragment_shader_text;
 	std::string _texture_sampler_text;
 	std::string _texture_execution_text;
-    std::vector<std::pair<std::string,std::string>> _uniforms;
+	std::vector<std::pair<std::string, std::string>> _uniforms;
+	std::vector<std::tuple<std::string,std::string,std::string>> _constants;
     MatNode* _uv_node;
     MatNode* _pos_node;
 	MatNode* _norm_node;
@@ -53,7 +54,7 @@ public:
         _pos_node->add_output("pos", "vec3");
         _norm_node = new MatNode("norm");
         _norm_node->add_output("norm", "vec3");
-		_vert_color_node = new MatNode("norm");
+		_vert_color_node = new MatNode("color");
 		_vert_color_node->add_output("color", "vec4");
 		_uv_node->required = true;
 		_norm_node->required = true;
@@ -112,6 +113,28 @@ public:
 		std::shared_ptr<NodeInput> input)
 	{
 
+	}
+
+	MatNode* add_uniform(const std::string& type, const std::string& name)
+	{
+		MatNode* out_node;
+		_uniforms.push_back(std::pair<std::string, std::string>(type, name));
+		out_node = new MatNode(name);
+		out_node->add_output(name, type);
+		out_node->required = true;
+		_node_graph.add_node(out_node);
+		return out_node;
+	}
+
+	MatNode* add_constant(const std::string& type, const std::string& name, const std::string& value)
+	{
+		MatNode* out_node;
+		_constants.push_back(std::make_tuple(type, name, value));
+		out_node = new MatNode(name);
+		out_node->add_output(name, type);
+		out_node->required = true;
+		_node_graph.add_node(out_node);
+		return out_node;
 	}
 
 	MatNode* uv_node()
