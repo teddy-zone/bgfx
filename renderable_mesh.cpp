@@ -18,9 +18,12 @@ RenderableMesh::RenderableMesh():
 void RenderableMesh::update_transform()
 {
 	_transform = glm::mat4(1);
+	auto trans_mat = glm::translate(glm::mat4(1), _position);
+	_transform = _transform * trans_mat;
 	_transform = glm::scale(_transform, _scale);
 	_transform = _transform * _rotation;
-	_transform = glm::translate(_transform, _position);
+	
+	
 }
 
 glm::mat4& RenderableMesh::get_transform()

@@ -46,6 +46,10 @@ Context::Context(int window_x, int window_y)
 
     glfwMakeContextCurrent(_window);
     gladLoadGL(glfwGetProcAddress);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
+    glDepthRange(0.0f, 1000.0f);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -63,6 +67,7 @@ Context::Context(int window_x, int window_y)
     auto start = std::chrono::high_resolution_clock::now();
     glClearColor(0.5, 0.3, 0.2, 1.0);
     glfwSwapInterval(0);
+    
 }
 
 bool Context::bgfx_window_should_close()
@@ -75,7 +80,7 @@ void Context::start_frame()
     glfwPollEvents();
     
     // Keep running6
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -109,7 +114,7 @@ void Context::end_frame()
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+    
     glfwSwapBuffers(_window);
     time += 0.01;
     //quad.translate(glm::vec3(0, 0, 0.001));
