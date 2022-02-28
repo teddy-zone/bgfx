@@ -40,6 +40,7 @@ in vec4 color; // specify a color output to the fragment shader
 in vec3 pos; // specify a color output to the fragment shader
 in vec3 norm; // specify a color output to the fragment shader
 in vec2 uv;
+layout(location = 0) out vec4 diffuseColor;
 
 //_UNIFORMS_
 
@@ -139,6 +140,27 @@ void Material::compile()
 			printf("GL ERROR!: %d", err);
 		}
 	}
+}
+
+void Material::link()
+{
+	unsigned int err;
+	_program.attach_shader(_vertex_shader);
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
+	_program.attach_shader(_fragment_shader);
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
+	_program.link();
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
+	_program.use();
 }
 
 }  // namespace bgfx

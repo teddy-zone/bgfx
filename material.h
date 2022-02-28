@@ -70,6 +70,16 @@ public:
         _node_graph.add_node(_frag_color_node);
 	}
 
+	void set_vertex_shader(std::shared_ptr<Shader> v_shader)
+	{
+		_vertex_shader = v_shader;
+	}
+
+	void set_fragment_shader(std::shared_ptr<Shader> f_shader)
+	{
+		_fragment_shader = f_shader;
+	}
+
 	void use()
 	{
 		_program.use();
@@ -157,6 +167,7 @@ public:
 	{
 		return _frag_color_node;
 	}
+	void link();
 };
 
 }  // namespace bgfx

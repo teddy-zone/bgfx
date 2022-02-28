@@ -30,8 +30,13 @@ protected:
 	VertexArray _vao;
 
 public:
+	std::vector<float> _saved_vertices;
+	glm::vec3 _bmin;
+	glm::vec3 _bmax;
+
 	Mesh();
 	void set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals = false);
+	void set_normals(const std::vector<float>& in_normals);
 	void set_uv_coords(const std::vector<float>& in_coords);
 	void set_vertex_colors(const std::vector<float>& in_colors);
 	void set_vertex_color(const glm::vec3& in_color, int index);

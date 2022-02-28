@@ -25,6 +25,11 @@ void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_norm
 	_vertices.set_data(in_vertices);
 }
 
+void Mesh::set_normals(const std::vector<float>& in_normals)
+{
+    _normals.set_data(in_normals);
+}
+
 void Mesh::set_uv_coords(const std::vector<float>& in_coords)
 {
 	_uv.set_data(in_coords);
@@ -83,7 +88,15 @@ void Mesh::load_obj(const std::string& in_file)
     auto& shapes = reader.GetShapes();
     auto& materials = reader.GetMaterials();
 
+    float min_x = 100000;
+    float min_y = 100000;
+    float min_z = 100000;
+    float max_x = -100000;
+    float max_y = -100000;
+    float max_z = -100000;
+
     std::vector<float> vertices;
+    std::vector<float> normals;
     // Loop over shapes
     for (size_t s = 0; s < shapes.size(); s++) {
         // Loop over faces(polygon)
@@ -99,15 +112,30 @@ void Mesh::load_obj(const std::string& in_file)
                 tinyobj::real_t vy = attrib.vertices[3 * size_t(idx.vertex_index) + 1];
                 tinyobj::real_t vz = attrib.vertices[3 * size_t(idx.vertex_index) + 2];
 
+                if (vx < min_x) { min_x = vx; }
+                if (vy < min_y) { min_y = vy; }
+                if (vz < min_z) { min_z = vz; }
+                if (vx > max_x) { max_x = vx; }
+                if (vy > max_y) { max_y = vy; }
+                if (vz > max_z) { max_z = vz; }
+
                 vertices.push_back(vx);
                 vertices.push_back(vy);
                 vertices.push_back(vz);
+                _saved_vertices.push_back(vx);
+                _saved_vertices.push_back(vy);
+                _saved_vertices.push_back(vz);
                 // Check if `normal_index` is zero or positive. negative = no normal data
                 if (idx.normal_index >= 0) {
                     tinyobj::real_t nx = attrib.normals[3 * size_t(idx.normal_index) + 0];
                     tinyobj::real_t ny = attrib.normals[3 * size_t(idx.normal_index) + 1];
                     tinyobj::real_t nz = attrib.normals[3 * size_t(idx.normal_index) + 2];
+                    normals.push_back(nx);
+                    normals.push_back(ny);
+                    normals.push_back(nz);
                 }
+
+
 
                 // Check if `texcoord_index` is zero or positive. negative = no texcoord data
                 if (idx.texcoord_index >= 0) {
@@ -126,7 +154,10 @@ void Mesh::load_obj(const std::string& in_file)
             shapes[s].mesh.material_ids[f];
         }
     }
+    _bmin = glm::vec3(min_x, min_y, min_z);
+    _bmax = glm::vec3(max_x, max_y, max_z);
     set_vertices(vertices);
+    set_normals(normals);
 }
 
 }  // namespace bgfx

@@ -72,7 +72,11 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 	_material->set_transform(view_mat, "view_matrix");
 
 	_mesh->bind();
-
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
 }
 
 void RenderableMesh::draw()
