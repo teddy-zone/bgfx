@@ -16,7 +16,7 @@
 #include "compute_shader.h"
 
 
-int main()
+int main_bgfx_text()
 {
 
     int x_res = 1200, y_res = 800;

@@ -41,6 +41,13 @@ private:
     NodeGraph<std::string> _node_graph;
 
 public:
+    
+    Material(const std::string& v_shader_file, const std::string& f_shader_file)
+    {
+        _vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, v_shader_file);
+        _fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, f_shader_file);
+        link();
+    }
 
 	Material() :
 		_vertex_shader_text(default_mat_vertex_shader),

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _VERTEX_ARRAY_H_
-#define _VERTEX_ARRAY_H_
 
 #include <map>
 #include <string>
@@ -37,4 +35,3 @@ public:
 
 }  // namespace bgfx
 
-#endif _VERTEX_ARRAY_H_

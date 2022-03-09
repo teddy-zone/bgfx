@@ -63,6 +63,7 @@ void RenderableMesh::set_scale(const glm::vec3& new_scale)
 
 void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 {
+#ifdef ENABLE_GRAPHICS
 	_material->use();
 
 	_material->set_transform(_transform, "model_matrix");
@@ -77,16 +78,19 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 	{
 		printf("GL ERROR!: %d", err);
 	}
+#endif 
 }
 
 void RenderableMesh::draw()
 {
+#ifdef ENABLE_GRAPHICS
 	glDrawArrays(GL_TRIANGLES, 0, _mesh->triangle_count()*3);
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
 	}
+#endif
 }
 
 void RenderableMesh::set_material(std::shared_ptr<Material> in_mat)

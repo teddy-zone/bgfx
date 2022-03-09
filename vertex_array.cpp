@@ -1,10 +1,9 @@
-#pragma once
 #include "vertex_array.h"
 
 #include <map>
 #include <string>
 
-#include "Buffer.h"
+#include "buffer.h"
 
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
@@ -15,12 +14,16 @@ namespace bgfx
 VertexArray::VertexArray() :
 	_buffer_indices(0)
 {
+#ifdef ENABLE_GRAPHICS
 	glGenVertexArrays(1, &_gl_id);
+#endif 
 }
 
 void VertexArray::bind()
 {
+#ifdef ENABLE_GRAPHICS
 	glBindVertexArray(_gl_id);
+#endif
 }
 
 void VertexArray::add_buffer(BufferBase* in_buf, std::string name, int size, AttributeType type, int stride)
@@ -47,8 +50,10 @@ void VertexArray::add_buffer(BufferBase* in_buf, std::string name, int size, Att
 		break;
 	}
 
+#ifdef ENABLE_GRAPHICS
 	glVertexAttribPointer(_buffer_indices, size, buf_type, GL_FALSE, stride, nullptr);
 	glEnableVertexAttribArray(_buffer_indices);
+#endif
 	_buffers[name] = in_buf;
 	_buffer_index[name] = _buffer_indices;
 	_buffer_indices += 1;
