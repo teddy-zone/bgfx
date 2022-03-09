@@ -2,6 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "renderable_mesh.h"
+#include "line_object.h"
 
 namespace bgfx
 {
@@ -33,6 +34,7 @@ public:
 	const glm::mat4& get_view_mat();
 	const glm::mat4& get_projection_mat();
 	void draw_object(RenderableMesh& in_mesh);
+	void draw_object(LineObject& in_mesh);
 	glm::vec3 get_ray(float x, float y);
 
 };

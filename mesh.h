@@ -42,6 +42,7 @@ public:
 	void set_vertex_color(const glm::vec3& in_color, int index);
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();
+	int vertex_count();
 	void bind();
 	void load_obj(const std::string& in_file);
 };

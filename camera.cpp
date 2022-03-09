@@ -61,6 +61,12 @@ void Camera::draw_object(RenderableMesh& in_mesh)
 	in_mesh.draw();
 }
 
+void Camera::draw_object(LineObject& in_mesh)
+{
+	in_mesh.bind(get_view_mat(), get_projection_mat());
+	in_mesh.draw();
+}
+
 glm::vec3 Camera::get_ray(float x, float y)
 {
 	glm::vec3 pixel_loc = glm::normalize(_look * _f + _right * (x - 0.5f) * 1.0f + _up * (y - 0.5f) * _height/_width);

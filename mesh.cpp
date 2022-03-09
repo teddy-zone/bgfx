@@ -60,6 +60,11 @@ int Mesh::triangle_count()
 	return _vertices.get_size() / 9;
 }
 
+int Mesh::vertex_count()
+{
+    return _vertices.get_size() / 3;
+}
+
 void Mesh::bind()
 {
 	_vao.bind();

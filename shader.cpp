@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 #include "glm/gtc/type_ptr.hpp"
 
@@ -26,13 +27,15 @@ Shader::Shader(Shader::Type in_type, const std::string in_string, bool source_te
     }
     const char* strings[1];
     GLint lengths[1];
+    std::ifstream in_stream(in_string);
+    std::stringstream strstream;
+    std::string source_string;
     if (!source_text)
     {
-        std::ifstream t2(in_string);
-        std::vector<char> source_string((std::istreambuf_iterator<char>(t2)),
-        std::istreambuf_iterator<char>());
-        lengths[0] = source_string.size();
-        strings[0] = source_string.data();
+        strstream << in_stream.rdbuf();
+        source_string = strstream.str();
+        lengths[0] = strstream.str().size();
+        strings[0] = source_string.c_str();
     }
     else
     {

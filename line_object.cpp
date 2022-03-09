@@ -1,5 +1,4 @@
-#include "renderable_mesh.h"
-
+#include "line_object.h"
 
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
@@ -7,7 +6,7 @@
 namespace bgfx
 {
 
-RenderableMesh::RenderableMesh():
+LineObject::LineObject():
 	_position(0,0,0),
 	_rotation(glm::mat4(1)),
 	_scale(1,1,1)
@@ -15,53 +14,51 @@ RenderableMesh::RenderableMesh():
 	update_transform();
 }
 
-void RenderableMesh::update_transform()
+void LineObject::update_transform()
 {
 	_transform = glm::mat4(1);
 	auto trans_mat = glm::translate(glm::mat4(1), _position);
 	_transform = _transform * trans_mat;
 	_transform = glm::scale(_transform, _scale);
 	_transform = _transform * _rotation;
-	
-	
 }
 
-glm::mat4& RenderableMesh::get_transform()
+glm::mat4& LineObject::get_transform()
 {
 	return _transform;
 }
 
-void RenderableMesh::translate(const glm::vec3& translation)
+void LineObject::translate(const glm::vec3& translation)
 {
 	_position += translation;
 	_transform = glm::translate(_transform, translation);
 }
 
-void RenderableMesh::rotate(const glm::mat4& rotation)
+void LineObject::rotate(const glm::mat4& rotation)
 {
 	_rotation = _rotation * rotation;
 	_transform = _transform * rotation;
 }
 
-void RenderableMesh::scale(const glm::vec3& scale)
+void LineObject::scale(const glm::vec3& scale)
 {
 	_scale *= scale;
 	_transform = glm::scale(_transform, scale);
 }
 
-void RenderableMesh::set_position(const glm::vec3& new_pos)
+void LineObject::set_position(const glm::vec3& new_pos)
 {
 	_position = new_pos;
 	update_transform();
 }
 
-void RenderableMesh::set_scale(const glm::vec3& new_scale)
+void LineObject::set_scale(const glm::vec3& new_scale)
 {
 	_scale = new_scale;
 	update_transform();
 }
 
-void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
+void LineObject::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 {
 #ifdef ENABLE_GRAPHICS
 	_material->use();
@@ -81,10 +78,10 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 #endif 
 }
 
-void RenderableMesh::draw()
+void LineObject::draw()
 {
 #ifdef ENABLE_GRAPHICS
-	glDrawArrays(GL_TRIANGLES, 0, _mesh->triangle_count()*3);
+	glDrawArrays(GL_LINE_STRIP, 0, _mesh->vertex_count());
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
@@ -93,17 +90,17 @@ void RenderableMesh::draw()
 #endif
 }
 
-void RenderableMesh::set_material(std::shared_ptr<Material> in_mat)
+void LineObject::set_material(std::shared_ptr<Material> in_mat)
 {
 	_material = in_mat;
 }
 
-void RenderableMesh::set_mesh(std::shared_ptr<Mesh> in_mesh)
+void LineObject::set_mesh(std::shared_ptr<Mesh> in_mesh)
 {
 	_mesh = in_mesh;
 }
 
-std::shared_ptr<Mesh> RenderableMesh::get_mesh()
+std::shared_ptr<Mesh> LineObject::get_mesh()
 {
 	return _mesh;
 }
