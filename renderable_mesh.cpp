@@ -22,8 +22,6 @@ void RenderableMesh::update_transform()
 	_transform = _transform * trans_mat;
 	_transform = glm::scale(_transform, _scale);
 	_transform = _transform * _rotation;
-	
-	
 }
 
 glm::mat4& RenderableMesh::get_transform()
@@ -61,10 +59,13 @@ void RenderableMesh::set_scale(const glm::vec3& new_scale)
 	update_transform();
 }
 
-void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
+void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, bool use_mat)
 {
 #ifdef ENABLE_GRAPHICS
-	_material->use();
+	if (use_mat)
+	{
+		_material->use();
+	}
 	
 	_material->set_transform(_transform, "model_matrix");
 

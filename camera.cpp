@@ -55,9 +55,9 @@ const glm::mat4& Camera::get_projection_mat()
 	return _projection_mat;
 }
 
-void Camera::draw_object(RenderableMesh& in_mesh)
+void Camera::draw_object(RenderableMesh& in_mesh, bool use_mat)
 {
-	in_mesh.bind(get_view_mat(), get_projection_mat());
+	in_mesh.bind(get_view_mat(), get_projection_mat(), use_mat);
 	in_mesh.draw();
 }
 
