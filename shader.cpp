@@ -97,7 +97,14 @@ void ShaderProgram::link()
 
 unsigned int ShaderProgram::get_uniform_location(const std::string& uniform_name)
 {
-    return glGetUniformLocation(_gl_id, uniform_name.c_str());
+    auto loc = glGetUniformLocation(_gl_id, uniform_name.c_str());
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+    }
+
+    return loc;
 }
 
 void ShaderProgram::set_uniform_i1(unsigned int uniform_id, int in_val)

@@ -65,22 +65,45 @@ void RenderableMesh::set_rotation(const glm::mat4& new_rotation)
 	update_transform();
 }
 
-void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, bool use_mat)
+void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, std::shared_ptr<bgfx::Material> in_mat)
 {
-#ifdef ENABLE_GRAPHICS
-	if (use_mat)
+
+	if (!in_mat)
 	{
-		_material->use();
+		in_mat = _material;
 	}
+
+#ifdef ENABLE_GRAPHICS
+	in_mat->use();
 	
-	_material->set_transform(_transform, "model_matrix");
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
 
-	_material->set_transform(proj_mat, "projection_matrix");
+	in_mat->set_transform(_transform, "model_matrix");
 
-	_material->set_transform(view_mat, "view_matrix");
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
+
+	in_mat->set_transform(proj_mat, "projection_matrix");
+
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
+
+	in_mat->set_transform(view_mat, "view_matrix");
+
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
 
 	_mesh->bind();
-	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);

@@ -33,7 +33,7 @@ public:
 	void set_look_target(const glm::vec3& new_look_target);
 	const glm::mat4& get_view_mat();
 	const glm::mat4& get_projection_mat();
-	void draw_object(RenderableMesh& in_mesh, bool use_mat=true);
+	void draw_object(RenderableMesh& in_mesh, std::shared_ptr<bgfx::Material> in_mat=nullptr);
 	void draw_object(LineObject& in_mesh);
 	glm::vec3 get_ray(float x, float y);
 
