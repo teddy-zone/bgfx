@@ -81,7 +81,14 @@ void LineObject::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
 void LineObject::draw()
 {
 #ifdef ENABLE_GRAPHICS
-	glDrawArrays(GL_LINE_STRIP, 0, _mesh->vertex_count());
+	if (strip)
+	{
+		glDrawArrays(GL_LINE_STRIP, 0, _mesh->vertex_count());
+	}
+	else
+	{
+		glDrawArrays(GL_LINES, 0, _mesh->vertex_count());
+	}
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{

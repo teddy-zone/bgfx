@@ -59,6 +59,12 @@ void RenderableMesh::set_scale(const glm::vec3& new_scale)
 	update_transform();
 }
 
+void RenderableMesh::set_rotation(const glm::mat4& new_rotation)
+{
+	_rotation = new_rotation;
+	update_transform();
+}
+
 void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, bool use_mat)
 {
 #ifdef ENABLE_GRAPHICS

@@ -21,6 +21,9 @@ class LineObject
 	void update_transform();
 
 public:
+
+	bool strip = true;
+
 	std::shared_ptr<Mesh> _mesh;
 
 	LineObject();
