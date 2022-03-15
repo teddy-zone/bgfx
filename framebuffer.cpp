@@ -42,13 +42,13 @@ namespace bgfx
 		return _name;
 	}
 
-	void Framebuffer::attach_texture(std::shared_ptr<Texture>& in_tex)
+	void Framebuffer::attach_texture(std::shared_ptr<Texture>& in_tex, int in_slot)
 	{
 		bind();
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, in_tex->gl_id(), 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + in_slot, GL_TEXTURE_2D, in_tex->gl_id(), 0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 }  // namespace bgfx

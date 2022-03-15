@@ -17,6 +17,7 @@ void main()
 {
     vec4 interpos = model_matrix* vec4(vpos, 1.0);
 
+    gl_Position = projection_matrix * view_matrix * interpos;
     pos = projection_matrix * view_matrix * interpos;
 
     norm = vnorm;

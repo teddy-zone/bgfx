@@ -163,4 +163,27 @@ void Material::link()
 	_program.use();
 }
 
+void Material::set_uniform_i1(const std::string& in_name, int in_val)
+{
+	auto loc = _program.get_uniform_location(in_name);
+	_program.set_uniform_i1(loc, in_val);
+}
+
+void Material::set_uniform_1f(const std::string& in_name, float in_val)
+{
+	auto loc = _program.get_uniform_location(in_name);
+	_program.set_uniform_1f(loc, in_val);
+}
+
+void Material::set_uniform_mat4(const std::string& in_name, const glm::mat4& in_val)
+{
+	auto loc = _program.get_uniform_location(in_name);
+	_program.set_uniform_mat4(loc, in_val);
+}
+
+void Material::set_uniform_3f(const std::string& in_name, const glm::vec3& in_val)
+{
+	_program.set_uniform_3f(in_name, in_val);
+}
+
 }  // namespace bgfx

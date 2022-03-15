@@ -175,6 +175,14 @@ public:
 		return _frag_color_node;
 	}
 	void link();
+
+	void set_uniform_i1(const std::string& in_name, int in_val);
+
+	void set_uniform_1f(const std::string& in_name, float in_val);
+
+	void set_uniform_mat4(const std::string& in_name, const glm::mat4& in_val);
+
+	void set_uniform_3f(const std::string& in_name, const glm::vec3& in_val);
 };
 
 }  // namespace bgfx

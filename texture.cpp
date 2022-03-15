@@ -74,6 +74,14 @@ void Texture::load_data(unsigned char* data, int in_size_x, int in_size_y)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, _size_x, _size_y, 0, GL_RGBA, GL_FLOAT, data);
 }
 
+void Texture::to_render(int in_size_x, int in_size_y)
+{
+	bind();
+	_size_x = in_size_x;
+	_size_y = in_size_y;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, in_size_x, in_size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+}
+
 const std::string& Texture::name()
 {
 	return _name;
