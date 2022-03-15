@@ -32,6 +32,7 @@ public:
 	void bind();
     void load_data(unsigned char* data, int in_size_x, int in_size_y);
 	void to_render(int in_size_x, int in_size_y);
+	void to_depth(int in_size_x, int in_size_y);
 	const std::string& name();
 	unsigned int slot() const { return _texture_slot; }
 	void set_slot(unsigned int in_slot) { _texture_slot = in_slot; }

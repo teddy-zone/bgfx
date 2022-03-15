@@ -30,6 +30,12 @@ namespace bgfx
 		{
 			printf("GL ERROR!: %d", err);
 		}
+		bind();
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LEQUAL);
+		glDepthRange(0.0f, 1000.0f);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void Framebuffer::bind()
@@ -46,6 +52,15 @@ namespace bgfx
 	{
 		bind();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + in_slot, GL_TEXTURE_2D, in_tex->gl_id(), 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void Framebuffer::attach_depth_texture(std::shared_ptr<Texture>& in_tex)
+	{
+		bind();
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, in_tex->gl_id(), 0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);

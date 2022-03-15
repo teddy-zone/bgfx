@@ -10,5 +10,5 @@ uniform sampler2D color_tex;
 
 void main()
 {    
-    diffuseColor = texture(position_tex, uv);
+    diffuseColor = texture(normal_tex, uv);
 }  

@@ -21,6 +21,7 @@ namespace bgfx
         std::shared_ptr<bgfx::Texture> normal_pass_tex;
         std::shared_ptr<bgfx::Texture> color_pass_tex;
         std::shared_ptr<bgfx::Texture> position_pass_tex;
+        std::shared_ptr<bgfx::Texture> depth_pass_tex;
 
         std::shared_ptr<bgfx::RenderableMesh> rmesh;
         std::shared_ptr<bgfx::Material> quad_mat;

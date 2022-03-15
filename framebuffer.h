@@ -26,6 +26,7 @@ namespace bgfx
 		const std::string& name();
 		unsigned int gl_id() { return _gl_id; }
 		void attach_texture(std::shared_ptr<Texture>& in_tex, int in_slot);
+		void attach_depth_texture(std::shared_ptr<Texture>& in_tex);
 	};
 
 }  // namespace bgfx

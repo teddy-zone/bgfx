@@ -11,9 +11,11 @@ namespace bgfx
         normal_pass_tex = std::make_shared<bgfx::Texture>("normal", x_res, y_res);
         color_pass_tex = std::make_shared<bgfx::Texture>("color", x_res, y_res);
         position_pass_tex = std::make_shared<bgfx::Texture>("position", x_res, y_res);
+        depth_pass_tex = std::make_shared<bgfx::Texture>("depth", x_res, y_res);
         normal_pass_tex->to_render(x_res, y_res);
         color_pass_tex->to_render(x_res, y_res);
         position_pass_tex->to_render(x_res, y_res);
+        depth_pass_tex->to_depth(x_res, y_res);
         g_buffer = std::make_shared<bgfx::Framebuffer>("g_buffer", x_res, y_res);
         g_buffer->bind();
        
@@ -31,6 +33,7 @@ namespace bgfx
         g_buffer->attach_texture(position_pass_tex, 0);
         g_buffer->attach_texture(normal_pass_tex, 1);
         g_buffer->attach_texture(color_pass_tex, 2);
+        g_buffer->attach_depth_texture(depth_pass_tex);
 
         while ((err = glGetError()) != GL_NO_ERROR)
         {

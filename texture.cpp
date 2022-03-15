@@ -82,6 +82,17 @@ void Texture::to_render(int in_size_x, int in_size_y)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, in_size_x, in_size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 }
 
+void Texture::to_depth(int in_size_x, int in_size_y)
+{
+	bind();
+	_size_x = in_size_x;
+	_size_y = in_size_y;
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, in_size_x, in_size_y, 0,
+		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
+	);
+}
+
 const std::string& Texture::name()
 {
 	return _name;
