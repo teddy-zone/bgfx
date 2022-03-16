@@ -81,8 +81,9 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 	{
 		printf("GL ERROR!: %d", err);
 	}
-
-	in_mat->set_transform(_transform, "model_matrix");
+	auto translation = glm::vec3(get_transform()[3]);
+	translation.z = 0;
+	in_mat->set_transform(get_transform(), "model_matrix");
 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{

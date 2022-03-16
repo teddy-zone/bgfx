@@ -19,10 +19,6 @@ namespace bgfx
         g_buffer = std::make_shared<bgfx::Framebuffer>("g_buffer", x_res, y_res);
         g_buffer->bind();
        
-        
-
-        
-
         GLenum err;
         while ((err = glGetError()) != GL_NO_ERROR)
         {
