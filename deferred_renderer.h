@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+
+#include "point_light.h"
 #include "texture.h"
 #include "framebuffer.h"
 #include "material.h"
@@ -8,30 +11,34 @@
 namespace bgfx
 {
 
-    class DeferredRenderer
-    {
+class DeferredRenderer
+{
 
+    std::shared_ptr<bgfx::Framebuffer> g_buffer;
 
-        std::shared_ptr<bgfx::Framebuffer> g_buffer;
-        
-        
+public:
 
-    public:
+    std::shared_ptr<bgfx::Texture> normal_pass_tex;
+    std::shared_ptr<bgfx::Texture> color_pass_tex;
+    std::shared_ptr<bgfx::Texture> position_pass_tex;
+    std::shared_ptr<bgfx::Texture> depth_pass_tex;
 
-        std::shared_ptr<bgfx::Texture> normal_pass_tex;
-        std::shared_ptr<bgfx::Texture> color_pass_tex;
-        std::shared_ptr<bgfx::Texture> position_pass_tex;
-        std::shared_ptr<bgfx::Texture> depth_pass_tex;
+    std::shared_ptr<bgfx::RenderableMesh> rmesh;
+    std::shared_ptr<bgfx::Material> quad_mat;
+    std::shared_ptr<bgfx::Material> gmat;
 
-        std::shared_ptr<bgfx::RenderableMesh> rmesh;
-        std::shared_ptr<bgfx::Material> quad_mat;
-        std::shared_ptr<bgfx::Material> gmat;
-        DeferredRenderer(int x_res, int y_res);
+    bgfx::Buffer<bgfx::PointLight> point_light_buffer;
 
-        virtual void draw();
+    std::vector<bgfx::PointLight> point_lights;
 
-        void bind_default();
+    DeferredRenderer(int x_res, int y_res);
 
-    };
+    virtual void draw();
+
+    void bind_default();
+
+    void bind_ssbo();
+
+};
 
 }

@@ -183,6 +183,11 @@ public:
 	void set_uniform_mat4(const std::string& in_name, const glm::mat4& in_val);
 
 	void set_uniform_3f(const std::string& in_name, const glm::vec3& in_val);
+
+	unsigned int get_program_id() const
+	{
+		return _program.get_id();
+	}
 };
 
 }  // namespace bgfx

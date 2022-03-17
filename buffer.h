@@ -45,7 +45,7 @@ public:
 
 	void set_data(const std::vector<DataType>& in_data, BindPoint bind_point=BindPoint::ARRAY_BUFFER)
 	{
-		_raw_buffer.buffer_data(in_data.data(), in_data.size(), sizeof(DataType));
+		_raw_buffer.buffer_data(in_data.data(), in_data.size(), sizeof(DataType), bind_point);
 	}
 
 	void set_data_range(const std::vector<DataType>& in_data, size_t start_element)

@@ -5,12 +5,12 @@
 namespace bgfx
 {
 
-class PointLight : public BGFXEntity
+struct PointLight
 {
-
-public:
-	glm::vec3 _color;
-	float _intensity;
+	glm::vec4 location;
+	glm::vec4 color;
+	float intensity;
+	float pad[3];
 };
 
 }

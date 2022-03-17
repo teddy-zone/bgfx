@@ -49,6 +49,11 @@ public:
 	void set_uniform_3f(const std::string& in_name, const glm::vec3& in_val);
 
 	void use();
+
+	unsigned int get_id() const
+	{
+		return _gl_id;
+	}
 };
 
 #endif  // _SHADER_H_

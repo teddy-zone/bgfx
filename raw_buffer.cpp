@@ -1,5 +1,6 @@
 #include "raw_buffer.h"
 
+#include <stdio.h>
 
 #include "glad/gl.h"
 #include <GLFW/glfw3.h>
@@ -68,6 +69,11 @@ void RawBuffer::buffer_data(const void* data, size_t element_count, size_t eleme
 #ifdef ENABLE_GRAPHICS
 	glBufferData(gl_bind_point, element_count * element_size, data, GL_DYNAMIC_DRAW);
 #endif
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+	}
 	_size = element_count * element_size;
 }
 
