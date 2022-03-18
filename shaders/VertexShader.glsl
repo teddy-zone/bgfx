@@ -22,6 +22,6 @@ void main()
     gl_Position = projection_matrix * view_matrix * interpos;
     pos = interpos/100.0;
 
-    norm = vnorm;
+    norm = mat3(transpose(inverse(model_matrix)))*vnorm;
     color = vec4(object_color, 1); // set the output variable to a dark-red color
 }
