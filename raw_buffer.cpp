@@ -33,6 +33,9 @@ GLenum bind_point_to_enum(BindPoint bind_point)
 	case BindPoint::UNIFORM_BUFFER:
 		gl_bind_point = GL_UNIFORM_BUFFER;
 		break;
+	case BindPoint::ELEMENT_ARRAY_BUFFER:
+		gl_bind_point = GL_ELEMENT_ARRAY_BUFFER;
+		break;
 	default:
 		break;
 	}

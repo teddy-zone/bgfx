@@ -60,8 +60,9 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 
 void RenderableMesh::draw()
 {
+	_mesh->_vertex_indices.bind(BindPoint::ELEMENT_ARRAY_BUFFER);
 #ifdef ENABLE_GRAPHICS
-	glDrawArrays(GL_TRIANGLES, 0, _mesh->triangle_count()*3);
+	glDrawElements(GL_TRIANGLES, _mesh->triangle_count()*3, GL_UNSIGNED_INT, (void*)0);
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{

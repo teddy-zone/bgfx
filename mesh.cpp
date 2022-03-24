@@ -13,6 +13,7 @@ Mesh::Mesh()
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertices), "vpos", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_normals), "vnorm", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_uv), "vuv", 2, bgfx::AttributeType::FLOAT);
+	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_indices), "vvind", 2, bgfx::AttributeType::UNSIGNED_INT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_color), "vcolor", 4, bgfx::AttributeType::FLOAT);
 }
 
@@ -25,9 +26,21 @@ void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_norm
 	_vertices.set_data(in_vertices);
 }
 
+void Mesh::set_vertex_indices(const std::vector<unsigned int>& in_data)
+{
+    _vao.bind();
+    _vertex_indices.set_data(in_data, BindPoint::ELEMENT_ARRAY_BUFFER);
+}
+
 void Mesh::set_normals(const std::vector<float>& in_normals)
 {
     _normals.set_data(in_normals);
+}
+
+void Mesh::set_normal_indices(const std::vector<unsigned int>& in_data)
+{
+    _vao.bind();
+    _normal_indices.set_data(in_data, BindPoint::ELEMENT_ARRAY_BUFFER);
 }
 
 void Mesh::set_uv_coords(const std::vector<float>& in_coords)
@@ -104,8 +117,16 @@ void Mesh::load_obj(const std::string& in_file)
 
     std::vector<float> vertices;
     std::vector<float> normals;
+    std::vector<unsigned int> vertex_indices;
+    std::vector<unsigned int> normal_indices;
+
     // Loop over shapes
     for (size_t s = 0; s < shapes.size(); s++) {
+        for (auto& index : shapes[s].mesh.indices)
+        {
+            vertex_indices.push_back(int(index.vertex_index));
+            normal_indices.push_back(int(index.normal_index));
+        }
         // Loop over faces(polygon)
         size_t index_offset = 0;
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
@@ -163,8 +184,17 @@ void Mesh::load_obj(const std::string& in_file)
     }
     _bmin = glm::vec3(min_x, min_y, min_z);
     _bmax = glm::vec3(max_x, max_y, max_z);
-    set_vertices(vertices);
+    normals.clear();
+    for (int i = 0; i < attrib.vertices.size()/3; ++i)
+    {
+        normals.push_back(0.0f);
+        normals.push_back(0.0f);
+        normals.push_back(1.0f);
+    }
+    set_vertices(attrib.vertices);
     set_normals(normals);
+    set_vertex_indices(vertex_indices);
+    //set_normal_indices(normal_indices);
 }
 
 }  // namespace bgfx
