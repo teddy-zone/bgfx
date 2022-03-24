@@ -21,6 +21,31 @@ uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
 uniform sampler2D color_tex;
 
+
+float evaluate_ssao(vec3 cur_loc, vec3 cur_norm)
+{
+    ivec2 texture_size = textureSize(position_tex, 0);
+    float div_factor_x = 1.0/texture_size.x;
+    float div_factor_y = 1.0/texture_size.y;
+    const int spread = 6;
+    float ssao_factor = 1.0;
+    for (int x = -spread; x <= spread; x+=2)
+    {
+        for (int y = -(spread-x); y <= (spread-x); y+=2)
+        {
+	    vec3 other_pos = texture(position_tex, uv+vec2(x*div_factor_x,y*div_factor_y)).xyz*100.0;
+	    float dist = length(other_pos - cur_loc);
+	    float angle_factor = clamp(pow(dot(cur_norm, normalize(other_pos - cur_loc)),1), 0, 1);
+	    if (dist < 1.5 && angle_factor > 0.5)
+            {
+                //ssao_factor += clamp(pow(dot(cur_norm, normalize(other_pos - cur_loc)),2), 0, 1)*1.0/pow(1+dist,2);
+                ssao_factor += angle_factor*1;
+            }
+        }
+    }
+    return ssao_factor;
+}
+
 void main()
 {    
     vec3 norm = texture(normal_tex, uv).xyz;
@@ -35,5 +60,5 @@ void main()
     factor += point_lights[i].color.xyz*point_lights[i].intensity*20000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
     }
     }
-    diffuseColor = vec4(factor,1)*vec4(1,1,1,1);
+    diffuseColor = vec4(factor,1)*vec4(1,1,1,1);///evaluate_ssao(post, norm);
 }  

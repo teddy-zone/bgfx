@@ -5,6 +5,9 @@
 #include <string>
 #include <algorithm>
 
+#undef max
+#undef min
+
 namespace bgfx
 {
 

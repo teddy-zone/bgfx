@@ -43,7 +43,7 @@ void Mesh::set_vertex_colors(const std::vector<float>& in_colors)
 void Mesh::calc_normals(const std::vector<float>& in_vertices)
 {
 	assert(in_vertices.size() % 3 == 0);
-	std::vector<float> normals(in_vertices.size() / 3);
+	std::vector<float> normals(in_vertices.size());
 	for (size_t i = 0; i < in_vertices.size(); i += 3)
 	{
 		const glm::vec3* v1 = reinterpret_cast<const glm::vec3*>(&in_vertices[i]);
@@ -51,6 +51,8 @@ void Mesh::calc_normals(const std::vector<float>& in_vertices)
 		const glm::vec3* v3 = reinterpret_cast<const glm::vec3*>(&in_vertices[i]) + 2;
 		glm::vec3* n = reinterpret_cast<glm::vec3*>(&normals[i / 3]);
 		*n = glm::normalize(glm::cross(*v2 - *v1, *v3 - *v1));
+        *(n + 1) = glm::normalize(glm::cross(*v2 - *v1, *v3 - *v1));
+        *(n+2) = glm::normalize(glm::cross(*v2 - *v1, *v3 - *v1));
 	}
 	_normals.set_data(normals);
 }

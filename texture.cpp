@@ -83,7 +83,7 @@ void Texture::to_render(int in_size_x, int in_size_y)
 	bind();
 	_size_x = in_size_x;
 	_size_y = in_size_y;
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, in_size_x, in_size_y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, in_size_x, in_size_y, 0, GL_RGB, GL_FLOAT, NULL);
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{

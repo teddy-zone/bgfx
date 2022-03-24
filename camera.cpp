@@ -69,7 +69,7 @@ void Camera::draw_object(LineObject& in_mesh)
 
 glm::vec3 Camera::get_ray(float x, float y)
 {
-	glm::vec3 pixel_loc = glm::normalize(_look * _f + _right * (x - 0.5f) * 1.0f + _up * (y - 0.5f) * _height/_width);
+	glm::vec3 pixel_loc = glm::normalize(_look * _f + _right * (x - 0.5f) * _width/_height + _up * (y - 0.5f) * 1.0f);
 	return pixel_loc;
 }
 
@@ -77,7 +77,7 @@ void Camera::calc_vectors()
 {
 	_right = glm::normalize(glm::cross(_look, glm::vec3(0, 0, 1)));
 	_up = glm::normalize(glm::cross(_right, _look));
-	_f = (_height/_width) / tan(glm::radians(_fov) / 2.0) / 2.0;
+	_f = 0.5f / tan(glm::radians(_fov) / 2.0f);
 }
 
 }  // namespace bgfx
