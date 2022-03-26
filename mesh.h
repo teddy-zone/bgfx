@@ -31,6 +31,7 @@ protected:
     Buffer<unsigned int> _vertex_indices;
     Buffer<unsigned int> _normal_indices;
 	VertexArray _vao;
+	bool _indexed;
 
 public:
 	std::vector<float> _saved_vertices;
@@ -49,7 +50,7 @@ public:
 	int triangle_count();
 	int vertex_count();
 	void bind();
-	void load_obj(const std::string& in_file);
+	void load_obj(const std::string& in_file, bool indexed=false);
 };
 
 }

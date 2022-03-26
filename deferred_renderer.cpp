@@ -45,6 +45,7 @@ DeferredRenderer::DeferredRenderer(int x_res, int y_res)
     rmesh->set_mesh(mesh);
     rmesh->get_mesh()->set_vertices({ {1,0,0, 0,1,0, 0,0,0, 0,1,0, 1,1,0, 1,0,0} });
     rmesh->get_mesh()->set_uv_coords({ {1,0, 0,1, 0,0, 0,1, 1,1, 1,0} });
+    rmesh->get_mesh()->set_vertex_indices({ {0,1,2,3,4,5} });
     rmesh->set_material(quad_mat);
     point_lights.push_back({ {10,10,50,1}, {0,1,1,1}, 0.5, {0,0,0} });
     point_lights.push_back({ {0,50,50,1}, {1,1,0,1}, 1.0, {0,0,0} });
