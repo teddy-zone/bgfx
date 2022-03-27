@@ -40,7 +40,7 @@ public:
 
 	void set_scale(const glm::vec3& new_scale);
 
-	void bind(const glm::mat4& view_mat, const glm::mat4& proj_mat);
+	void bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, std::shared_ptr<bgfx::Material> in_mat=nullptr);
 
 	void draw();
 

@@ -14,6 +14,7 @@ class RenderableMesh : public BGFXEntity
 {
 
 	std::shared_ptr<Material> _material;
+	int _id;
 
 public:
 	std::shared_ptr<Mesh> _mesh;
@@ -29,6 +30,8 @@ public:
 	void set_mesh(std::shared_ptr<Mesh> in_mesh);
 
 	std::shared_ptr<Mesh> get_mesh();
+
+	void set_id(int in_id);
 };
 
 }  // namespace bgfx

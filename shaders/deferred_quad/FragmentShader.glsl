@@ -20,7 +20,9 @@ uniform int point_light_count;
 uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
 uniform sampler2D color_tex;
+uniform sampler2D object_id_tex;
 
+uniform int selected_object;
 
 float evaluate_ssao(vec3 cur_loc, vec3 cur_norm)
 {
@@ -49,6 +51,8 @@ float evaluate_ssao(vec3 cur_loc, vec3 cur_norm)
 void main()
 {    
     vec3 norm = texture(normal_tex, uv).xyz;
+    vec3 color = texture(color_tex, uv).xyz;
+    float object_id = texture(object_id_tex, uv).x;
     vec3 post = texture(position_tex, uv).xyz*100.0;
     vec3 factor = vec3(0.0); 
     if (point_light_count > 1)
@@ -60,5 +64,9 @@ void main()
     factor += point_lights[i].color.xyz*point_lights[i].intensity*20000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
     }
     }
-    diffuseColor = vec4(factor,1)*vec4(1,1,1,1);///evaluate_ssao(post, norm);
+    if (int(object_id) == selected_object)
+    {
+        color = vec3(0.5,0.5,1.0);
+    }
+    diffuseColor = vec4(factor*color,1);//evaluate_ssao(post, norm);
 }  

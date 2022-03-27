@@ -58,16 +58,23 @@ void LineObject::set_scale(const glm::vec3& new_scale)
 	update_transform();
 }
 
-void LineObject::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat)
+void LineObject::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, std::shared_ptr<bgfx::Material> in_mat)
 {
+	if (!in_mat)
+	{
+		in_mat = _material;
+	}
+
 #ifdef ENABLE_GRAPHICS
-	_material->use();
+	in_mat->set_uniform_i1("object_id", 1);
+
+	in_mat->use();
 	
-	_material->set_transform(_transform, "model_matrix");
+	in_mat->set_transform(_transform, "model_matrix");
 
-	_material->set_transform(proj_mat, "projection_matrix");
+	in_mat->set_transform(proj_mat, "projection_matrix");
 
-	_material->set_transform(view_mat, "view_matrix");
+	in_mat->set_transform(view_mat, "view_matrix");
 
 	_mesh->bind();
 	GLenum err;

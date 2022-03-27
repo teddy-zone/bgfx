@@ -31,7 +31,7 @@ protected:
     Buffer<unsigned int> _vertex_indices;
     Buffer<unsigned int> _normal_indices;
 	VertexArray _vao;
-	bool _indexed;
+	bool _indexed = false;
 
 public:
 	std::vector<float> _saved_vertices;
@@ -46,6 +46,7 @@ public:
 	void set_uv_coords(const std::vector<float>& in_coords);
 	void set_vertex_colors(const std::vector<float>& in_colors);
 	void set_vertex_color(const glm::vec3& in_color, int index);
+	void set_solid_color(const glm::vec3& in_color);
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();
 	int vertex_count();

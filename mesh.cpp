@@ -13,8 +13,8 @@ Mesh::Mesh()
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertices), "vpos", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_normals), "vnorm", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_uv), "vuv", 2, bgfx::AttributeType::FLOAT);
-	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_indices), "vvind", 1, bgfx::AttributeType::UNSIGNED_INT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_color), "vcolor", 4, bgfx::AttributeType::FLOAT);
+	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_indices), "vvind", 1, bgfx::AttributeType::UNSIGNED_INT);
 }
 
 void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals)
@@ -51,6 +51,19 @@ void Mesh::set_uv_coords(const std::vector<float>& in_coords)
 void Mesh::set_vertex_colors(const std::vector<float>& in_colors)
 {
 	_vertex_color.set_data(in_colors);
+}
+
+void Mesh::set_solid_color(const glm::vec3& in_color)
+{
+    std::vector<float> color_vector;
+    for (int i = 0; i < _saved_vertices.size()/3; ++i)
+    {
+        color_vector.push_back(in_color.x); 
+        color_vector.push_back(in_color.y); 
+        color_vector.push_back(in_color.z); 
+        color_vector.push_back(1.0); 
+    }
+    set_vertex_colors(color_vector);
 }
 
 void Mesh::calc_normals(const std::vector<float>& in_vertices)
@@ -264,6 +277,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
         set_normals(normals);
 
     }
+    set_solid_color(glm::vec3(1,1,1));
     //set_normal_indices(normal_indices);
 }
 

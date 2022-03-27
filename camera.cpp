@@ -61,9 +61,9 @@ void Camera::draw_object(RenderableMesh& in_mesh, std::shared_ptr<bgfx::Material
 	in_mesh.draw();
 }
 
-void Camera::draw_object(LineObject& in_mesh)
+void Camera::draw_object(LineObject& in_mesh, std::shared_ptr<bgfx::Material> in_mat)
 {
-	in_mesh.bind(get_view_mat(), get_projection_mat());
+	in_mesh.bind(get_view_mat(), get_projection_mat(), in_mat);
 	in_mesh.draw();
 }
 

@@ -22,6 +22,8 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 #ifdef ENABLE_GRAPHICS
 	in_mat->use();
 	
+	in_mat->set_uniform_i1("object_id", _id);
+
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
@@ -91,6 +93,11 @@ void RenderableMesh::set_mesh(std::shared_ptr<Mesh> in_mesh)
 std::shared_ptr<Mesh> RenderableMesh::get_mesh()
 {
 	return _mesh;
+}
+
+void RenderableMesh::set_id(int in_id)
+{
+	_id = in_id;
 }
 
 }  // namespace bgfx
