@@ -66,7 +66,9 @@ void main()
     }
     if (int(object_id) == selected_object)
     {
-        color = vec3(0.5,0.5,1.0);
+        color *= vec3(1.0,0.5,2.0);
     }
-    diffuseColor = vec4(factor*color,1);//evaluate_ssao(post, norm);
+    float gamma = 2.3;
+    vec4 pre_color = vec4(factor*color,1);//evaluate_ssao(post, norm);
+    diffuseColor = vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
 }  

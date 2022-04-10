@@ -54,8 +54,8 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     rmesh->get_mesh()->set_uv_coords({ {1,0, 0,1, 0,0, 0,1, 1,1, 1,0} });
     rmesh->get_mesh()->set_vertex_indices({ {0,1,2,3,4,5} });
     rmesh->set_material(quad_mat);
-    point_lights.push_back({ {10,10,50,1}, {1,1,1,1}, 0.5, {0,0,0} });
-    point_lights.push_back({ {0,50,50,1}, {1,1,1,1}, 1.0, {0,0,0} });
+    point_lights.push_back({ {10,10,50,1}, {1,0.9,0.8,1}, 0.1, {0,0,0} });
+    point_lights.push_back({ {100,50,50,1}, {0.9,1,1,1}, 0.2, {0,0,0} });
     gmat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\VertexShader.glsl", "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_shader.glsl");
     post_process_mat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\VertexShader.glsl", "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_shader.glsl");
     bind_default();
