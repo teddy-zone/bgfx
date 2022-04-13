@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include "point_light.h"
+#include "decal.h"
 #include "texture.h"
 #include "framebuffer.h"
 #include "material.h"
@@ -35,8 +37,12 @@ public:
     std::shared_ptr<bgfx::Material> post_process_mat;
 
     bgfx::Buffer<bgfx::PointLight> point_light_buffer;
+    bgfx::Buffer<bgfx::Decal> decal_buffer;
 
     std::vector<bgfx::PointLight> point_lights;
+    std::unordered_map<int, bgfx::PointLight> point_light_map;
+    std::vector<bgfx::Decal> decals;
+    std::unordered_map<int, bgfx::Decal> decal_map;
 
     DeferredRenderer(int x_res, int y_res);
 
@@ -47,6 +53,10 @@ public:
     void bind_ssbo();
 
     void add_post_process_layer();
+
+    void update_light_buffers();
+
+    void update_decal_buffers();
 
 };
 

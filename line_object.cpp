@@ -81,6 +81,7 @@ void LineObject::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, std:
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 #endif 
 }
@@ -100,6 +101,7 @@ void LineObject::draw()
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 #endif
 }

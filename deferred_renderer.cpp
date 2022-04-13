@@ -29,6 +29,7 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);
+		throw "opengl error";
     }
     std::vector<unsigned int> attachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
     glDrawBuffers(4, attachments.data());
@@ -41,6 +42,7 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);
+		throw "opengl error";
     }
         
 #endif
@@ -56,19 +58,26 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     rmesh->set_material(quad_mat);
     point_lights.push_back({ {10,10,50,1}, {1,0.9,0.8,1}, 0.1, {0,0,0} });
     point_lights.push_back({ {100,50,50,1}, {0.9,1,1,1}, 0.2, {0,0,0} });
+    Decal test_decal;
+    test_decal.color = glm::vec4(0,0,1,1);
+    test_decal.location = glm::vec4(50,50,50,1);
+    test_decal.intensity = 1.0;
+    test_decal.radius = 10.0;
+    test_decal.type = 1;
+    test_decal.t = 0.0;
+    decals.push_back(test_decal);
     gmat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\VertexShader.glsl", "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_shader.glsl");
     post_process_mat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\VertexShader.glsl", "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_shader.glsl");
     bind_default();
     quad_mat->use();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, point_light_buffer.get_id());
     point_light_buffer.set_data(point_lights, BindPoint::SHADER_STORAGE_BUFFER);
-    //glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    //auto blok_index = glGetProgramResourceIndex(quad_mat->get_program_id(), GL_SHADER_STORAGE_BLOCK, "point_lights_uni");
-    point_light_buffer.bind();
-    GLint data;
-    glGetBufferParameteriv(GL_SHADER_STORAGE_BUFFER, GL_BUFFER_USAGE, &data);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, decal_buffer.get_id());
+    decal_buffer.set_data(decals, BindPoint::SHADER_STORAGE_BUFFER);
+
     quad_mat->set_uniform_i1("point_light_count", point_lights.size());
+    quad_mat->set_uniform_i1("decal_count", decals.size());
     quad_mat->set_uniform_i1("selected_object", 1);
     
     //glShaderStorageBlockBinding(quad_mat->get_program_id(), block_index, 2);
@@ -84,7 +93,7 @@ void DeferredRenderer::draw()
     //std::vector<unsigned int> attachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     //glDrawBuffers(3, attachments.data());
     gmat->use();
-    
+
 }
 
 
@@ -93,7 +102,11 @@ void DeferredRenderer::bind_default()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void DeferredRenderer::bind_ssbo() { glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, point_light_buffer.get_id()); }
+void DeferredRenderer::bind_ssbo() 
+{ 
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, point_light_buffer.get_id()); 
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, decal_buffer.get_id()); 
+}
 
 void DeferredRenderer::add_post_process_layer()
 { 
@@ -107,6 +120,48 @@ void DeferredRenderer::add_post_process_layer()
         attachments.push_back(GL_COLOR_ATTACHMENT0 + i);
     }
     glDrawBuffers(num_attachments, attachments.data());
+}
+
+void DeferredRenderer::update_light_buffers()
+{
+    point_lights.clear();
+    point_lights.reserve(point_light_map.size());
+    for (auto& [light_name, light] : point_light_map)
+    {
+        point_lights.push_back(light);
+    }
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, point_light_buffer.get_id());
+    point_light_buffer.set_data(point_lights, BindPoint::SHADER_STORAGE_BUFFER);
+    quad_mat->use();
+    quad_mat->set_uniform_i1("point_light_count", point_lights.size());
+}
+
+void DeferredRenderer::update_decal_buffers()
+{
+    decals.clear();
+    decals.reserve(decal_map.size());
+    for (auto& [decal_name, decal] : decal_map)
+    {
+        decals.push_back(decal);
+    }
+    GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+		throw "opengl error";
+	}
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, decal_buffer.get_id());
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+		throw "opengl error";
+	}
+    decal_buffer.set_data(decals, BindPoint::SHADER_STORAGE_BUFFER);
+
+    quad_mat->use();
+    quad_mat->set_uniform_i1("decal_count", decals.size());
 }
 
 }

@@ -1956,7 +1956,7 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define GL_INT_VEC3_ARB 0x8B54
 #define GL_INT_VEC4 0x8B55
 #define GL_INT_VEC4_ARB 0x8B55
-#define GL_INVALID_ENUM 0x0500
+#define L_INVALID_ENUM 0x0500
 #define GL_INVALID_FRAMEBUFFER_OPERATION 0x0506
 #define GL_INVALID_FRAMEBUFFER_OPERATION_EXT 0x0506
 #define GL_INVALID_INDEX 0xFFFFFFFF

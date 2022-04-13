@@ -28,6 +28,7 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	auto translation = glm::vec3(get_transform()[3]);
 	translation.z = 0;
@@ -36,6 +37,7 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 
 	in_mat->set_transform(proj_mat, "projection_matrix");
@@ -43,6 +45,7 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 
 	in_mat->set_transform(view_mat, "view_matrix");
@@ -50,12 +53,14 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 
 	_mesh->bind();
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 #endif 
 }
@@ -76,6 +81,7 @@ void RenderableMesh::draw()
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 #endif
 }

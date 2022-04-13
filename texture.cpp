@@ -43,12 +43,14 @@ Texture::Texture(const std::string& name, unsigned int size_x, unsigned int size
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	bind();
 	
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size_x, size_y, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -56,11 +58,13 @@ Texture::Texture(const std::string& name, unsigned int size_x, unsigned int size
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 }
 
@@ -88,6 +92,7 @@ void Texture::to_render(int in_size_x, int in_size_y)
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 }
 
@@ -104,6 +109,7 @@ void Texture::to_depth(int in_size_x, int in_size_y)
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 }
 

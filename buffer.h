@@ -3,6 +3,7 @@
 #define _BUFFER_H_
 
 #include <vector>
+#include <cassert>
 
 #include "raw_buffer.h"
 
