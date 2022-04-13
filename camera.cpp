@@ -5,9 +5,11 @@
 namespace bgfx
 {
 
-Camera::Camera(float width, float height):
+Camera::Camera(float width, float height, int x_res, int y_res):
 	_height(height),
-	_width(width)
+	_width(width),
+	_x_res(x_res),
+	_y_res(y_res)
 {
 }
 
@@ -78,6 +80,15 @@ void Camera::calc_vectors()
 	_right = glm::normalize(glm::cross(_look, glm::vec3(0, 0, 1)));
 	_up = glm::normalize(glm::cross(_right, _look));
 	_f = 0.5f / tan(glm::radians(_fov) / 2.0f);
+}
+
+glm::vec4 Camera::world_to_screen_space(const glm::vec3& world_space)
+{
+	glm::vec4 cam_space = get_projection_mat()*get_view_mat()*glm::vec4(world_space, 1.0f);
+	cam_space = (cam_space/cam_space.w + 1.0f)/2.0f;
+	cam_space.x = cam_space.x*_x_res;
+	cam_space.y = cam_space.y*_y_res;
+	return cam_space;
 }
 
 }  // namespace bgfx

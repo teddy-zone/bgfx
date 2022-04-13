@@ -15,6 +15,7 @@ layout (std430, binding=5) buffer point_lights_uni
 {
     PointLight point_lights[];
 };
+
 uniform int point_light_count;
 
 uniform sampler2D position_tex;
