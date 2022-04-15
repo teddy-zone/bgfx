@@ -75,7 +75,7 @@ struct MatMod
 };
 
 // Waves decal
-MatMod evaluate_decal_1(in Decal in_decal, in vec3 pos)
+MatMod evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout bool lit_flag)
 {
     float wavelength = 1.0;
     float dist = length(in_decal.location.xy - pos.xy);  
@@ -93,21 +93,21 @@ MatMod evaluate_decal_1(in Decal in_decal, in vec3 pos)
 }
 
 // Icy decal
-MatMod evaluate_decal_2(in Decal in_decal, in vec3 pos)
+MatMod evaluate_decal_2(in Decal in_decal, in vec3 pos, inout vec3 color, inout bool lit_flag)
 {
     MatMod out_mod;
     return out_mod;
 }
 
-MatMod evaluate_decal(in Decal in_decal, in vec3 pos)
+MatMod evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout bool lit_flag)
 {
     if (in_decal.type == 1)
     {
-        return evaluate_decal_1(in_decal, pos);
+        return evaluate_decal_1(in_decal, pos, color, lit_flag);
     }
     else if (in_decal.type == 2)
     {
-        return evaluate_decal_2(in_decal, pos);
+        return evaluate_decal_2(in_decal, pos, color, lit_flag);
     }
 }
 
@@ -117,7 +117,7 @@ void main()
     vec3 color = texture(color_tex, uv).xyz;
     float object_id = texture(object_id_tex, uv).x;
     vec3 post = texture(position_tex, uv).xyz*100.0;
-    vec3 factor = vec3(0.0); 
+    vec3 factor = vec3(0.02); 
 
     MatMod full_mod;
     float mod_count = 0;
@@ -125,7 +125,8 @@ void main()
     {
         if (length(post.xy - decals[i].location.xy) < decals[i].radius)
         {
-            MatMod single_mod = evaluate_decal(decals[i], post);
+            bool is_lit;
+            MatMod single_mod = evaluate_decal(decals[i], post, color, is_lit);
             full_mod.color += single_mod.color;
             full_mod.normal += single_mod.normal;
             full_mod.normal_factor += single_mod.normal_factor;
@@ -156,9 +157,7 @@ void main()
     {
         color *= vec3(1.0,0.5,2.0);
     }
-
     float gamma = 2.3;
     vec4 pre_color = vec4(factor*color,1);//evaluate_ssao(post, norm);
     diffuseColor = vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
-
 }  

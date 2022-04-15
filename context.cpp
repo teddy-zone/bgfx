@@ -52,6 +52,8 @@ Context::Context(int window_x, int window_y)
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1000.0f);
 
+
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
