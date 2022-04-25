@@ -14,9 +14,10 @@ struct PointLight
 struct Decal
 {
     vec4 location;
+    vec4 location2;
     vec4 color;
     float radius;
-    float intensity;
+    float angle;
     float t;
     int type;
     int object_id;
@@ -70,12 +71,12 @@ struct MatMod
 {
     vec4 color;
     vec3 normal;
-    float normal_factor;
     vec3 spec;
+    float normal_factor;
 };
 
 // Waves decal
-MatMod evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout bool lit_flag)
+void evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
     float wavelength = 1.0;
     float dist = length(in_decal.location.xy - pos.xy);  
@@ -84,30 +85,55 @@ MatMod evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout 
     float wave_amplitude = 1/pow(dist + 1, 2);
     float val = wave_amplitude*sin(wave_freq*in_decal.t + dist*wavelength);
     float d_val = cos(wave_freq*in_decal.t + dist*wavelength);
-    MatMod out_mod;
-    out_mod.color = in_decal.color*val;
-    out_mod.color.w = 1.0 - in_decal.t;
-    out_mod.normal_factor = 1.0 - in_decal.t;
-    out_mod.normal = normalize(radial + vec3(0,0,1)/(d_val));
-    return out_mod;
+    normal = normal + (1.0 - in_decal.t)*normalize(radial + vec3(0,0,1)/(d_val));
+    return;
 }
 
 // Icy decal
-MatMod evaluate_decal_2(in Decal in_decal, in vec3 pos, inout vec3 color, inout bool lit_flag)
+void evaluate_decal_2(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
-    MatMod out_mod;
-    return out_mod;
+    return;
 }
 
-MatMod evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout bool lit_flag)
+// Circle targeting decal
+void evaluate_decal_circle_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float dist = length(in_decal.location.xy - pos.xy);  
+    color = color + vec3(-0.1, -0.1, 0.5) + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
+// Cone targeting decal
+void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    vec3 direction1 = normalize(in_decal.location - in_decal.location2).xyz;
+    vec3 direction2 = normalize(pos - in_decal.location2.xyz);
+    float dist = length(in_decal.location2.xy - pos.xy);  
+    if (dot(direction1,direction2) < cos(3.14159/4.0))
+    {
+        return;
+    }
+    color = color + vec3(-0.1, -0.1, 0.5) + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
+void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
     if (in_decal.type == 1)
     {
-        return evaluate_decal_1(in_decal, pos, color, lit_flag);
+        evaluate_decal_1(in_decal, pos, color, normal, lit_flag);
     }
     else if (in_decal.type == 2)
     {
-        return evaluate_decal_2(in_decal, pos, color, lit_flag);
+        evaluate_decal_2(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 3)
+    {
+        evaluate_decal_circle_targeting(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 4)
+    {
+        evaluate_decal_cone_targeting(in_decal, pos, color, normal, lit_flag);
     }
 }
 
@@ -120,16 +146,17 @@ void main()
     vec3 factor = vec3(0.02); 
 
     MatMod full_mod;
+    full_mod.normal_factor = 0;
+    full_mod.normal = vec3(0);
+    full_mod.color = vec4(0);
     float mod_count = 0;
     for (int i = 0; i < decal_count; ++i)
     {
-        if (length(post.xy - decals[i].location.xy) < decals[i].radius)
+        if ((decals[i].type != 4 && length(post.xy - decals[i].location.xy) < decals[i].radius) ||
+            (decals[i].type == 4 && length(post.xy - decals[i].location2.xy) < decals[i].radius))
         {
             bool is_lit;
-            MatMod single_mod = evaluate_decal(decals[i], post, color, is_lit);
-            full_mod.color += single_mod.color;
-            full_mod.normal += single_mod.normal;
-            full_mod.normal_factor += single_mod.normal_factor;
+            evaluate_decal(decals[i], post, color, norm, is_lit);
             mod_count += 1;
         }
     }
@@ -137,9 +164,9 @@ void main()
     if (mod_count > 0)
     {
         //full_mod.color = normalize(full_mod.color);
-        full_mod.normal= normalize(full_mod.normal);
-        color += full_mod.color.xyz*full_mod.color.w;
-        norm = normalize(full_mod.normal*full_mod.normal_factor + norm*(1 - full_mod.normal_factor));
+        //full_mod.normal = normalize(full_mod.normal);
+        //color += full_mod.color.xyz*full_mod.color.w;
+        //norm = normalize(full_mod.normal*full_mod.normal_factor + norm*(1 - full_mod.normal_factor));
     }
 
     if (point_light_count > 0)

@@ -61,7 +61,7 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     Decal test_decal;
     test_decal.color = glm::vec4(0,0,1,1);
     test_decal.location = glm::vec4(50,50,50,1);
-    test_decal.intensity = 1.0;
+    test_decal.angle = 2*3.1415926;
     test_decal.radius = 10.0;
     test_decal.type = 1;
     test_decal.t = 0.0;
