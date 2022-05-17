@@ -182,7 +182,7 @@ void main()
 
     if (int(object_id) == selected_object)
     {
-        color *= vec3(1.0,0.5,2.0);
+        //color *= vec3(1.0,0.5,2.0);
     }
     float gamma = 2.3;
     vec4 pre_color = vec4(factor*color,1);//evaluate_ssao(post, norm);

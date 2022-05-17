@@ -47,6 +47,7 @@ public:
 	void set_vertex_colors(const std::vector<float>& in_colors);
 	void set_vertex_color(const glm::vec3& in_color, int index);
 	void set_solid_color(const glm::vec3& in_color);
+	void set_solid_color(const glm::vec4& in_color);
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();
 	int vertex_count();

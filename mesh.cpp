@@ -66,6 +66,19 @@ void Mesh::set_solid_color(const glm::vec3& in_color)
     set_vertex_colors(color_vector);
 }
 
+void Mesh::set_solid_color(const glm::vec4& in_color)
+{
+    std::vector<float> color_vector;
+    for (int i = 0; i < _saved_vertices.size()/3; ++i)
+    {
+        color_vector.push_back(in_color.x); 
+        color_vector.push_back(in_color.y); 
+        color_vector.push_back(in_color.z); 
+        color_vector.push_back(in_color.a); 
+    }
+    set_vertex_colors(color_vector);
+}
+
 void Mesh::calc_normals(const std::vector<float>& in_vertices)
 {
 	assert(in_vertices.size() % 3 == 0);

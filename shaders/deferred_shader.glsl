@@ -19,6 +19,22 @@ void main()
     gNormal = normalize(norm);
     // and the diffuse per-fragment color
     gAlbedoSpec = color;
+    if (color.a < 0.99 && color.a > 0.5)
+    {
+        const int dither_number = int(10*(1 - color.a));
+        if (int(gl_FragCoord.x) % dither_number == 0)
+        {
+            discard;
+        }
+    }
+    if (color.a < 0.5)
+    {
+        const int dither_number = int(10*(color.a));
+        if (int(gl_FragCoord.x) % dither_number != 0)
+        {
+            discard;
+        }
+    }
     gObjectId = vec4(float(f_object_id), 0, 0,0);
     // store specular intensity in gAlbedoSpec's alpha component
 }  
