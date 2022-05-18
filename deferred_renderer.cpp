@@ -1,6 +1,12 @@
+#include <filesystem>
+
 #include "glad/gl.h"
 
 #include "deferred_renderer.h"
+#include "shaders/main_deferred_fragment_shader.glsl.h"
+#include "shaders/main_deferred_vertex_shader.glsl.h"
+#include "shaders/deferred_quad_vertex_shader.glsl.h"
+#include "shaders/deferred_quad_fragment_shader.glsl.h"
 
 namespace bgfx
 {
@@ -46,8 +52,10 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     }
         
 #endif
-    quad_mat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_quad\\VertexShader.glsl", 
-        "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_quad\\FragmentShader.glsl");
+
+    gmat = std::make_shared<bgfx::Material>(deferred_quad_vertex_shader,
+        deferred_quad_fragment_shader, true);
+    quad_mat = std::make_shared<bgfx::Material>(main_deferred_vertex_shader, main_deferred_fragment_shader, true);
 
     rmesh = std::make_shared<bgfx::RenderableMesh>();
     auto mesh = std::make_shared<bgfx::Mesh>();
@@ -66,8 +74,6 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     test_decal.type = 1;
     test_decal.t = 0.0;
     decals.push_back(test_decal);
-    gmat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\VertexShader.glsl", "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_shader.glsl");
-    post_process_mat = std::make_shared<bgfx::Material>("C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\VertexShader.glsl", "C:\\Users\\tjwal\\projects\\game_stuff\\bare_gfx\\shaders\\deferred_shader.glsl");
     bind_default();
     quad_mat->use();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, point_light_buffer.get_id());
