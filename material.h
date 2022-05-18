@@ -42,10 +42,18 @@ private:
 
 public:
     
-    Material(const std::string& v_shader_file, const std::string& f_shader_file)
+    Material(const std::string& v_shader_file, const std::string& f_shader_file, bool source_text=false)
     {
-        _vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, v_shader_file);
-        _fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, f_shader_file);
+		if (source_text)
+		{
+			_vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, v_shader_file, true);
+			_fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, f_shader_file, true);
+		}
+		else
+		{
+			_vertex_shader = std::make_shared<Shader>(Shader::Type::Vertex, v_shader_file);
+			_fragment_shader = std::make_shared<Shader>(Shader::Type::Fragment, f_shader_file);
+		}
         link();
     }
 

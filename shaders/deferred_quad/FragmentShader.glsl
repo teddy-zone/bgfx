@@ -11,29 +11,180 @@ struct PointLight
     float intensity;
 };
 
+struct Decal
+{
+    vec4 location;
+    vec4 location2;
+    vec4 color;
+    float radius;
+    float angle;
+    float t;
+    int type;
+    int object_id;
+};
+
 layout (std430, binding=5) buffer point_lights_uni
 {
     PointLight point_lights[];
 };
+
+layout (std430, binding=6) buffer decals_uni
+{
+    Decal decals[];
+};
+
 uniform int point_light_count;
+uniform int decal_count;
 
 uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
 uniform sampler2D color_tex;
+uniform sampler2D object_id_tex;
+
+uniform int selected_object;
+
+float evaluate_ssao(vec3 cur_loc, vec3 cur_norm)
+{
+    ivec2 texture_size = textureSize(position_tex, 0);
+    float div_factor_x = 1.0/texture_size.x;
+    float div_factor_y = 1.0/texture_size.y;
+    const int spread = 6;
+    float ssao_factor = 1.0;
+    for (int x = -spread; x <= spread; x+=2)
+    {
+        for (int y = -(spread-x); y <= (spread-x); y+=2)
+        {
+	    vec3 other_pos = texture(position_tex, uv+vec2(x*div_factor_x,y*div_factor_y)).xyz*100.0;
+	    float dist = length(other_pos - cur_loc);
+	    float angle_factor = clamp(pow(dot(cur_norm, normalize(other_pos - cur_loc)),1), 0, 1);
+	    if (dist < 1.5 && angle_factor > 0.5)
+            {
+                //ssao_factor += clamp(pow(dot(cur_norm, normalize(other_pos - cur_loc)),2), 0, 1)*1.0/pow(1+dist,2);
+                ssao_factor += angle_factor*1;
+            }
+        }
+    }
+    return ssao_factor;
+}
+
+struct MatMod
+{
+    vec4 color;
+    vec3 normal;
+    vec3 spec;
+    float normal_factor;
+};
+
+// Waves decal
+void evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float wavelength = 1.0;
+    float dist = length(in_decal.location.xy - pos.xy);  
+    float wave_freq = 10.0/pow(dist + 1,2);
+    vec3 radial = vec3(normalize(pos.xy - in_decal.location.xy), 0);  
+    float wave_amplitude = 1/pow(dist + 1, 2);
+    float val = wave_amplitude*sin(wave_freq*in_decal.t + dist*wavelength);
+    float d_val = cos(wave_freq*in_decal.t + dist*wavelength);
+    normal = normal + (1.0 - in_decal.t)*normalize(radial + vec3(0,0,1)/(d_val));
+    return;
+}
+
+// Icy decal
+void evaluate_decal_2(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    return;
+}
+
+// Circle targeting decal
+void evaluate_decal_circle_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float dist = length(in_decal.location.xy - pos.xy);  
+    color = color + vec3(-0.1, -0.1, 0.5) + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
+// Cone targeting decal
+void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    vec3 direction1 = normalize(in_decal.location - in_decal.location2).xyz;
+    vec3 direction2 = normalize(pos - in_decal.location2.xyz);
+    float dist = length(in_decal.location2.xy - pos.xy);  
+    if (dot(direction1,direction2) < cos(3.14159/4.0))
+    {
+        return;
+    }
+    color = color + vec3(-0.1, -0.1, 0.5) + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
+void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    if (in_decal.type == 1)
+    {
+        evaluate_decal_1(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 2)
+    {
+        evaluate_decal_2(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 3)
+    {
+        evaluate_decal_circle_targeting(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 4)
+    {
+        evaluate_decal_cone_targeting(in_decal, pos, color, normal, lit_flag);
+    }
+}
 
 void main()
 {    
     vec3 norm = texture(normal_tex, uv).xyz;
+    vec3 color = texture(color_tex, uv).xyz;
+    float object_id = texture(object_id_tex, uv).x;
     vec3 post = texture(position_tex, uv).xyz*100.0;
-    vec3 factor = vec3(0.0); 
-    if (point_light_count > 1)
-    {
-    for (int i = 0; i < point_light_count; ++i)
-    {
-    vec3 r = point_lights[i].location.xyz - post;
+    vec3 factor = vec3(0.02); 
 
-    factor += point_lights[i].color.xyz*point_lights[i].intensity*20000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
+    MatMod full_mod;
+    full_mod.normal_factor = 0;
+    full_mod.normal = vec3(0);
+    full_mod.color = vec4(0);
+    float mod_count = 0;
+    for (int i = 0; i < decal_count; ++i)
+    {
+        if ((decals[i].type != 4 && length(post.xy - decals[i].location.xy) < decals[i].radius) ||
+            (decals[i].type == 4 && length(post.xy - decals[i].location2.xy) < decals[i].radius))
+        {
+            bool is_lit;
+            evaluate_decal(decals[i], post, color, norm, is_lit);
+            mod_count += 1;
+        }
     }
+
+    if (mod_count > 0)
+    {
+        //full_mod.color = normalize(full_mod.color);
+        //full_mod.normal = normalize(full_mod.normal);
+        //color += full_mod.color.xyz*full_mod.color.w;
+        //norm = normalize(full_mod.normal*full_mod.normal_factor + norm*(1 - full_mod.normal_factor));
     }
-    diffuseColor = vec4(factor,1)*vec4(1,1,1,1);
+
+    if (point_light_count > 0)
+    {
+        for (int i = 0; i < point_light_count; ++i)
+        {
+            vec3 r = point_lights[i].location.xyz - post;
+
+            factor += point_lights[i].color.xyz*point_lights[i].intensity*20000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
+        }
+    }
+
+
+    if (int(object_id) == selected_object)
+    {
+        //color *= vec3(1.0,0.5,2.0);
+    }
+    float gamma = 2.3;
+    vec4 pre_color = vec4(factor*color,1);//evaluate_ssao(post, norm);
+    diffuseColor = vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
 }  

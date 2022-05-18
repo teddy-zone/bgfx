@@ -21,10 +21,12 @@ class Camera
 
 public:
 	float _fov = 60;
+	int _x_res;
+	int _y_res;
 	float _width;
 	float _height;
 
-	Camera(float width, float height);
+	Camera(float width, float height, int x_res, int y_res);
 	void set_position(const glm::vec3& new_pos);
 	glm::vec3 get_position() const;
 	void translate(const glm::vec3& trans);
@@ -34,8 +36,9 @@ public:
 	const glm::mat4& get_view_mat();
 	const glm::mat4& get_projection_mat();
 	void draw_object(RenderableMesh& in_mesh, std::shared_ptr<bgfx::Material> in_mat=nullptr);
-	void draw_object(LineObject& in_mesh);
+	void draw_object(LineObject& in_mesh, std::shared_ptr<bgfx::Material> in_mat=nullptr);
 	glm::vec3 get_ray(float x, float y);
+	glm::vec4 world_to_screen_space(const glm::vec3& world_space);
 
 };
 

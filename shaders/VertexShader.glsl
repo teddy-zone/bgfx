@@ -9,11 +9,13 @@ uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 uniform vec3 object_color;
+uniform int object_id;
 
 out vec4 color; // specify a color output to the fragment shader
 out vec2 uv;
 out vec3 norm;
 out vec4 pos;
+flat out int f_object_id;
 
 void main()
 {
@@ -22,6 +24,7 @@ void main()
     gl_Position = projection_matrix * view_matrix * interpos;
     pos = interpos/100.0;
 
-    norm = vnorm;
-    color = vec4(object_color, 1); // set the output variable to a dark-red color
+    norm = mat3(transpose(inverse(model_matrix)))*vnorm;
+    color = vcolor;//vec4(object_color, 1); // set the output variable to a dark-red color
+    f_object_id = object_id;
 }

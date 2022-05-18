@@ -102,6 +102,7 @@ unsigned int ShaderProgram::get_uniform_location(const std::string& uniform_name
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);
+		throw "opengl error";
     }
 
     return loc;
@@ -110,6 +111,12 @@ unsigned int ShaderProgram::get_uniform_location(const std::string& uniform_name
 void ShaderProgram::set_uniform_i1(unsigned int uniform_id, int in_val)
 {
     glUniform1i(uniform_id, in_val);
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+		throw "opengl error";
+    }
 }
 
 void ShaderProgram::set_uniform_1f(unsigned int uniform_id, float in_val)
@@ -134,5 +141,6 @@ void ShaderProgram::use()
     while ((err = glGetError()) != GL_NO_ERROR)
     {
         printf("GL ERROR!: %d", err);
+		throw "opengl error";
     }
 }

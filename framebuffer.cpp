@@ -29,6 +29,7 @@ namespace bgfx
 		while ((err = glGetError()) != GL_NO_ERROR)
 		{
 			printf("GL ERROR!: %d", err);
+			throw "opengl error";
 		}
 		bind();
 		glEnable(GL_DEPTH_TEST);

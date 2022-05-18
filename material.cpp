@@ -114,16 +114,19 @@ void Material::compile()
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	_program.attach_shader(_fragment_shader);
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	_program.link();
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		printf("GL ERROR!: %d", err);
+		throw "opengl error";
 	}
 	_program.use();
 	for (auto& tex : _textures)
@@ -133,11 +136,13 @@ void Material::compile()
 		while ((err = glGetError()) != GL_NO_ERROR)
 		{
 			printf("GL ERROR!: %d", err);
+		throw "opengl error";
 		}
 		glUniform1i(loc, tex->slot());
 		while ((err = glGetError()) != GL_NO_ERROR)
 		{
 			printf("GL ERROR!: %d", err);
+			throw "opengl error";
 		}
 	}
 }

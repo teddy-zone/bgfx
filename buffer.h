@@ -3,6 +3,7 @@
 #define _BUFFER_H_
 
 #include <vector>
+#include <cassert>
 
 #include "raw_buffer.h"
 
@@ -15,9 +16,9 @@ class BufferBase
 protected:
 	RawBuffer _raw_buffer;
 public:
-	void bind()
+	void bind(BindPoint bind_point=BindPoint::ARRAY_BUFFER)
 	{
-		_raw_buffer.bind();
+		_raw_buffer.bind(bind_point);
 	}
 	unsigned int get_id()
 	{

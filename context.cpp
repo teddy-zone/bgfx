@@ -46,10 +46,13 @@ Context::Context(int window_x, int window_y)
 
     glfwMakeContextCurrent(_window);
     gladLoadGL(glfwGetProcAddress);
+    glEnable(GL_FRAMEBUFFER_SRGB); 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1000.0f);
+
+
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -90,8 +93,6 @@ void Context::start_frame()
 
 void Context::end_frame()
 {
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
     glfwSwapBuffers(_window);
     time += 0.01;
