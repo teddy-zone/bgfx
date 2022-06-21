@@ -19,6 +19,7 @@ class DeferredRenderer
     std::shared_ptr<bgfx::Framebuffer> g_buffer;
     std::shared_ptr<bgfx::Framebuffer> post_process_buffer;
     int post_process_offset;
+    float res_factor = 2.5;
 
 public:
 

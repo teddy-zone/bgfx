@@ -17,17 +17,16 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
 {
 #ifdef ENABLE_GRAPHICS
     post_process_offset = 3; // Number of non-post process textures
-    
-    normal_pass_tex = std::make_shared<bgfx::Texture>("normal", x_res, y_res);
-    color_pass_tex = std::make_shared<bgfx::Texture>("color", x_res, y_res);
-    position_pass_tex = std::make_shared<bgfx::Texture>("position", x_res, y_res);
-    object_id_pass_tex = std::make_shared<bgfx::Texture>("object_id", x_res, y_res);
-    depth_pass_tex = std::make_shared<bgfx::Texture>("depth", x_res, y_res);
-    normal_pass_tex->to_render(x_res, y_res);
-    color_pass_tex->to_render(x_res, y_res);
-    position_pass_tex->to_render(x_res, y_res);
-    object_id_pass_tex->to_render(x_res, y_res);
-    depth_pass_tex->to_depth(x_res, y_res);
+    normal_pass_tex = std::make_shared<bgfx::Texture>("normal", x_res/res_factor, y_res/res_factor);
+    color_pass_tex = std::make_shared<bgfx::Texture>("color", x_res/res_factor, y_res/res_factor);
+    position_pass_tex = std::make_shared<bgfx::Texture>("position", x_res/res_factor, y_res/res_factor);
+    object_id_pass_tex = std::make_shared<bgfx::Texture>("object_id", x_res/res_factor, y_res/res_factor);
+    depth_pass_tex = std::make_shared<bgfx::Texture>("depth", x_res/res_factor, y_res/res_factor);
+    normal_pass_tex->to_render(x_res/res_factor, y_res/res_factor);
+    color_pass_tex->to_render(x_res/res_factor, y_res/res_factor);
+    position_pass_tex->to_render(x_res/res_factor, y_res/res_factor);
+    object_id_pass_tex->to_render(x_res/res_factor, y_res/res_factor);
+    depth_pass_tex->to_depth(x_res/res_factor, y_res/res_factor);
     g_buffer = std::make_shared<bgfx::Framebuffer>("g_buffer", x_res, y_res);
     g_buffer->bind();
     
@@ -44,6 +43,7 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     g_buffer->attach_texture(color_pass_tex, 2);
     g_buffer->attach_texture(object_id_pass_tex, 3);
     g_buffer->attach_depth_texture(depth_pass_tex);
+
 
     while ((err = glGetError()) != GL_NO_ERROR)
     {
@@ -93,6 +93,7 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
 
 void DeferredRenderer::draw()
 {
+    glViewport(0,0,x_res/res_factor, y_res/res_factor);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     g_buffer->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -105,6 +106,7 @@ void DeferredRenderer::draw()
 
 void DeferredRenderer::bind_default()
 {
+	glViewport(0,0,x_res, y_res);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
