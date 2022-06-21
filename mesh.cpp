@@ -24,17 +24,20 @@ void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_norm
 		calc_normals(in_vertices);
 	}
 	_vertices.set_data(in_vertices);
+    _saved_vertices = in_vertices;
 }
 
 void Mesh::set_vertex_indices(const std::vector<unsigned int>& in_data)
 {
     _vao.bind();
     _vertex_indices.set_data(in_data, BindPoint::ELEMENT_ARRAY_BUFFER);
+    _saved_indices = in_data;
 }
 
 void Mesh::set_normals(const std::vector<float>& in_normals)
 {
     _normals.set_data(in_normals);
+    _saved_normals = in_normals;
 }
 
 void Mesh::set_normal_indices(const std::vector<unsigned int>& in_data)
@@ -51,6 +54,7 @@ void Mesh::set_uv_coords(const std::vector<float>& in_coords)
 void Mesh::set_vertex_colors(const std::vector<float>& in_colors)
 {
 	_vertex_color.set_data(in_colors);
+    _saved_colors = in_colors;
 }
 
 void Mesh::set_solid_color(const glm::vec3& in_color)
@@ -61,6 +65,24 @@ void Mesh::set_solid_color(const glm::vec3& in_color)
         color_vector.push_back(in_color.x); 
         color_vector.push_back(in_color.y); 
         color_vector.push_back(in_color.z); 
+        color_vector.push_back(1.0); 
+    }
+    set_vertex_colors(color_vector);
+}
+
+void Mesh::set_solid_color_by_hex(unsigned int in_color)
+{
+    unsigned int redt = (in_color >> 16);
+    unsigned int red = (in_color >> 16) & 0xFF;
+    unsigned int green = (in_color >> 8) & 0xFF;
+    unsigned int blue = (in_color) & 0xFF;
+    glm::vec3 vector_color = glm::vec3(red*1.0/0xFF, green*1.0/0xFF, blue*1.0/0xFF);
+    std::vector<float> color_vector;
+    for (int i = 0; i < _saved_vertices.size()/3; ++i)
+    {
+        color_vector.push_back(vector_color.x); 
+        color_vector.push_back(vector_color.y); 
+        color_vector.push_back(vector_color.z); 
         color_vector.push_back(1.0); 
     }
     set_vertex_colors(color_vector);
@@ -146,7 +168,6 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
     std::vector<float> normals;
     std::vector<unsigned int> vertex_indices;
     std::vector<unsigned int> normal_indices;
-    std::map<unsigned int, std::vector<unsigned int>> vertex_to_normal_index;
     std::map<unsigned int, unsigned int> vertex_to_count;
 
     if (indexed)
@@ -159,7 +180,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
                 {
                     max_index = index.vertex_index;
                 }
-                if (0 && vertex_to_normal_index.find(index.vertex_index) != vertex_to_normal_index.end())
+                if (0 && _vertex_to_normal_index.find(index.vertex_index) != _vertex_to_normal_index.end())
                 {
                     attrib_vertices.push_back(attrib.vertices[3*index.vertex_index + 0]);
                     attrib_vertices.push_back(attrib.vertices[3*index.vertex_index + 1]);
@@ -179,10 +200,10 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
                 if (vx > max_x) { max_x = vx; }
                 if (vy > max_y) { max_y = vy; }
                 if (vz > max_z) { max_z = vz; }
-                _saved_vertices.push_back(vx);
-                _saved_vertices.push_back(vy);
-                _saved_vertices.push_back(vz);
-                vertex_to_normal_index[index.vertex_index].push_back(index.normal_index);
+                _octree_vertices.push_back(vx);
+                _octree_vertices.push_back(vy);
+                _octree_vertices.push_back(vz);
+                _vertex_to_normal_index[index.vertex_index].push_back(index.normal_index);
                 if (vertex_to_count.find(vertex_indices.back()) == vertex_to_count.end())
                 {
                     vertex_to_count[vertex_indices.back()] = 1;
@@ -197,7 +218,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
         normals.resize(attrib_vertices.size(), 0);
         for (int i = 0; i < attrib_vertices.size()/3; ++i)
         {
-            auto normal_indices = vertex_to_normal_index[i];
+            auto normal_indices = _vertex_to_normal_index[i];
             for (auto& normal_index : normal_indices )
             {
                 auto nx = (attrib.normals[3*normal_index + 0]);
@@ -251,9 +272,9 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
                     vertices.push_back(vx);
                     vertices.push_back(vy);
                     vertices.push_back(vz);
-                    _saved_vertices.push_back(vx);
-                    _saved_vertices.push_back(vy);
-                    _saved_vertices.push_back(vz);
+                    _octree_vertices.push_back(vx);
+                    _octree_vertices.push_back(vy);
+                    _octree_vertices.push_back(vz);
                     // Check if `normal_index` is zero or positive. negative = no normal data
                     if (idx.normal_index >= 0) {
                         tinyobj::real_t nx = attrib.normals[3 * size_t(idx.normal_index) + 0];

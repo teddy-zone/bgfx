@@ -46,7 +46,7 @@ Context::Context(int window_x, int window_y)
 
     glfwMakeContextCurrent(_window);
     gladLoadGL(glfwGetProcAddress);
-    glEnable(GL_FRAMEBUFFER_SRGB); 
+    //glEnable(GL_FRAMEBUFFER_SRGB); 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);

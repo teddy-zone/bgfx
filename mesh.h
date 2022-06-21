@@ -34,7 +34,14 @@ protected:
 	bool _indexed = false;
 
 public:
+	std::vector<unsigned int> _saved_indices;
 	std::vector<float> _saved_vertices;
+	std::vector<float> _octree_vertices;
+	std::vector<float> _saved_colors;
+	std::vector<float> _unlit_colors;
+	std::vector<float> _saved_normals;
+    std::map<unsigned int, std::vector<unsigned int>> _vertex_to_normal_index;
+	bool _vertex_lighting_calculated = false;
 	glm::vec3 _bmin;
 	glm::vec3 _bmax;
 
@@ -47,6 +54,7 @@ public:
 	void set_vertex_colors(const std::vector<float>& in_colors);
 	void set_vertex_color(const glm::vec3& in_color, int index);
 	void set_solid_color(const glm::vec3& in_color);
+	void set_solid_color_by_hex(unsigned int in_code);
 	void set_solid_color(const glm::vec4& in_color);
 	void calc_normals(const std::vector<float>& in_vertices);
 	int triangle_count();

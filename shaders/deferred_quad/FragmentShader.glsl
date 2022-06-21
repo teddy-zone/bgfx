@@ -117,6 +117,14 @@ void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 co
     return;
 }
 
+// Shadow decal
+void evaluate_decal_shadow(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float dist = length(in_decal.location.xy - pos.xy);  
+    color = vec3(0,0,0);//color - vec3(0.3, 0.3, 0.2);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
 void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
     if (in_decal.type == 1)
@@ -134,6 +142,11 @@ void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3
     else if (in_decal.type == 4)
     {
         evaluate_decal_cone_targeting(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 5)
+    {
+        //evaluate_decal_shadow(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_circle_targeting(in_decal, pos, color, normal, lit_flag);
     }
 }
 

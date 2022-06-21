@@ -121,6 +121,14 @@ void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 co
     return;
 }
 
+// Shadow decal 
+void evaluate_decal_shadow(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float dist = length(in_decal.location.xy - pos.xy);  
+    color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
 void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
     if (in_decal.type == 1)
@@ -139,6 +147,44 @@ void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3
     {
         evaluate_decal_cone_targeting(in_decal, pos, color, normal, lit_flag);
     }
+    else if (in_decal.type == 5)
+    {
+        evaluate_decal_shadow(in_decal, pos, color, normal, lit_flag);
+    }
+}
+
+void process_discrete_shading(inout float in_light, 
+                              int number_of_levels,
+                              float level_slope,
+                              float between_slope)
+{
+    int level = int(number_of_levels*in_light);
+    in_light = float(level)/float(number_of_levels);
+}
+
+void process_cel_shading(inout float in_light)
+{
+    float shift_start = 0.45;
+    float shift_end = 0.55;
+    float slope1 = 0.02;
+    float slope2 = 10.0;
+    float slope3 = 0.02;
+
+    float slope2_y_intercept = slope1*shift_start - slope2*shift_start;
+    float slope3_y_intercept = slope2*shift_end + slope2_y_intercept - slope3*shift_end;
+
+    if (in_light < shift_start)
+    {
+        in_light = in_light*slope1;
+    }
+    else if (in_light > shift_end)
+    {
+        in_light = in_light*slope3 + slope3_y_intercept;
+    }
+    else
+    {
+        in_light = in_light*slope2 + slope2_y_intercept;
+    }
 }
 
 void main()
@@ -147,21 +193,24 @@ void main()
     vec3 color = texture(color_tex, uv).xyz;
     float object_id = texture(object_id_tex, uv).x;
     vec3 post = texture(position_tex, uv).xyz*100.0;
-    vec3 factor = vec3(0.02); 
+    vec3 factor = vec3(0.5); 
 
     MatMod full_mod;
     full_mod.normal_factor = 0;
     full_mod.normal = vec3(0);
     full_mod.color = vec4(0);
     float mod_count = 0;
-    for (int i = 0; i < decal_count; ++i)
+    if (object_id < 0)
     {
-        if ((decals[i].type != 4 && length(post.xy - decals[i].location.xy) < decals[i].radius) ||
-            (decals[i].type == 4 && length(post.xy - decals[i].location2.xy) < decals[i].radius))
+        for (int i = 0; i < decal_count; ++i)
         {
-            bool is_lit;
-            evaluate_decal(decals[i], post, color, norm, is_lit);
-            mod_count += 1;
+            if ((decals[i].type != 4 && length(post.xy - decals[i].location.xy) < decals[i].radius) ||
+                (decals[i].type == 4 && length(post.xy - decals[i].location2.xy) < decals[i].radius))
+            {
+                bool is_lit;
+                evaluate_decal(decals[i], post, color, norm, is_lit);
+                mod_count += 1;
+            }
         }
     }
 
@@ -179,17 +228,27 @@ void main()
         {
             vec3 r = point_lights[i].location.xyz - post;
 
-            factor += point_lights[i].color.xyz*point_lights[i].intensity*20000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
+            factor += point_lights[i].color.xyz*point_lights[i].intensity*10000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
         }
     }
 
-
+    process_discrete_shading(factor.x, 3, 1.0, 1.0);
+    process_discrete_shading(factor.y, 3, 1.0, 1.0);
+    process_discrete_shading(factor.z, 3, 1.0, 1.0);
     if (int(object_id) == selected_object)
     {
         //color *= vec3(1.0,0.5,2.0);
     }
     float gamma = 2.3;
     vec4 pre_color = vec4(factor*color,1);//evaluate_ssao(post, norm);
-    diffuseColor = vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
+
+    if (object_id < 0)
+    { 
+        float avg = (pre_color.x + pre_color.y + pre_color.z)/3.0;
+        pre_color.xyz = (pre_color.xyz*0.4 + vec3(avg,avg,avg)*0.6);
+        pre_color.xyz = pre_color.xyz*vec3(0.6,0.6,1.0) + vec3(0.2);
+    }
+
+    diffuseColor = pre_color;//vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
 }  
 )SHAD";
