@@ -29,7 +29,7 @@ inline GLOctreeNode create_node(GLbyte in_data = 0)
 
 inline unsigned int vec_to_child(glm::vec3 node_loc, float node_size, glm::vec3 loc)
 {
-	glm::vec3 node_center = node_loc + glm::vec3(node_size) / 2.0f;
+	glm::vec3 node_center = node_loc + glm::vec3(node_size) * 0.5;
 	return int(bool(loc.x > node_center.x)) * 1 + int(bool(loc.y > node_center.y)) * 2 + int(bool(loc.z > node_center.z)) * 4;
 }
 
@@ -63,8 +63,8 @@ inline unsigned int place_node(std::vector<GLOctreeNode>& nodes, unsigned int ro
 			nodes[root_node].children[child_index] = nodes.size() - 1;
 			child_node = nodes.size() - 1;
 		}
-		auto child_loc = root_loc + child_to_vec(child_index) * root_size / 2.0f;
-		return place_node(nodes, child_node, child_loc, root_size / 2.0, loc, size, data);
+		auto child_loc = root_loc + child_to_vec(child_index) * root_size*0.5f;
+		return place_node(nodes, child_node, child_loc, root_size*0.5f , loc, size, data);
 	}
 }
 

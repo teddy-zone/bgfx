@@ -20,7 +20,7 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     normal_pass_tex = std::make_shared<bgfx::Texture>("normal", x_res/res_factor, y_res/res_factor);
     color_pass_tex = std::make_shared<bgfx::Texture>("color", x_res/res_factor, y_res/res_factor);
     position_pass_tex = std::make_shared<bgfx::Texture>("position", x_res/res_factor, y_res/res_factor);
-    object_id_pass_tex = std::make_shared<bgfx::Texture>("object_id", x_res/res_factor, y_res/res_factor);
+    object_id_pass_tex = std::make_shared<bgfx::Texture>("object_id", x_res / res_factor, y_res / res_factor);
     depth_pass_tex = std::make_shared<bgfx::Texture>("depth", x_res/res_factor, y_res/res_factor);
     normal_pass_tex->to_render(x_res/res_factor, y_res/res_factor);
     color_pass_tex->to_render(x_res/res_factor, y_res/res_factor);
@@ -81,6 +81,9 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, decal_buffer.get_id());
     decal_buffer.set_data(decals, BindPoint::SHADER_STORAGE_BUFFER);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, fow_buffer.get_id());
+    fow_buffer.set_data(fows, BindPoint::SHADER_STORAGE_BUFFER);
 
     quad_mat->set_uniform_i1("point_light_count", point_lights.size());
     quad_mat->set_uniform_i1("decal_count", decals.size());
@@ -170,6 +173,34 @@ void DeferredRenderer::update_decal_buffers()
 
     quad_mat->use();
     quad_mat->set_uniform_i1("decal_count", decals.size());
+}
+
+void DeferredRenderer::update_fow_buffers()
+{
+    fows.clear();
+    fows.reserve(fow_map.size());
+    for (auto& [fow_name, fow] : fow_map)
+    {
+        fows.push_back(fow);
+    }
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+        throw "opengl error";
+    }
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, fow_buffer.get_id());
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        printf("GL ERROR!: %d", err);
+        throw "opengl error";
+    }
+    fow_buffer.set_data(fows, BindPoint::SHADER_STORAGE_BUFFER);
+    
+    quad_mat->use();
+    quad_mat->set_uniform_i1("fow_count", fows.size());
+    
 }
 
 }

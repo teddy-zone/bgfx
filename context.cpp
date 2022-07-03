@@ -68,7 +68,7 @@ Context::Context(int window_x, int window_y)
     ImGui_ImplGlfw_InitForOpenGL(_window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
     auto start = std::chrono::high_resolution_clock::now();
-    glClearColor(0.5, 0.3, 0.2, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glfwSwapInterval(0);
     
 }

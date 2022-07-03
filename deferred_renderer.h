@@ -9,6 +9,7 @@
 #include "framebuffer.h"
 #include "material.h"
 #include "renderable_mesh.h"
+#include "fow.h"
 
 namespace bgfx
 {
@@ -39,11 +40,14 @@ public:
 
     bgfx::Buffer<bgfx::PointLight> point_light_buffer;
     bgfx::Buffer<bgfx::Decal> decal_buffer;
+    bgfx::Buffer<bgfx::Fow> fow_buffer;
 
     std::vector<bgfx::PointLight> point_lights;
     std::unordered_map<int, bgfx::PointLight> point_light_map;
     std::vector<bgfx::Decal> decals;
     std::unordered_map<int, bgfx::Decal> decal_map;
+    std::vector<bgfx::Fow> fows;
+    std::unordered_map<int, bgfx::Fow> fow_map;
 
     DeferredRenderer(int x_res, int y_res);
 
@@ -58,6 +62,8 @@ public:
     void update_light_buffers();
 
     void update_decal_buffers();
+
+    void update_fow_buffers();
 
 };
 

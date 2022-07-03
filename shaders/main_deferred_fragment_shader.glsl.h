@@ -27,6 +27,12 @@ struct Decal
     int object_id;
 };
 
+struct Fow
+{
+    vec4 location;
+    float ranges[120];
+};
+
 layout (std430, binding=5) buffer point_lights_uni
 {
     PointLight point_lights[];
@@ -37,13 +43,20 @@ layout (std430, binding=6) buffer decals_uni
     Decal decals[];
 };
 
+layout (std430, binding=7) buffer fows_uni
+{
+    Fow fows[];
+};
+
 uniform int point_light_count;
 uniform int decal_count;
+uniform int fow_count;
 
 uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
 uniform sampler2D color_tex;
 uniform sampler2D object_id_tex;
+uniform sampler2D fov_tex;
 
 uniform int selected_object;
 
@@ -153,13 +166,14 @@ void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3
     }
 }
 
-void process_discrete_shading(inout float in_light, 
+float process_discrete_shading(float in_light, 
                               int number_of_levels,
                               float level_slope,
                               float between_slope)
 {
     int level = int(number_of_levels*in_light);
     in_light = float(level)/float(number_of_levels);
+    return in_light;
 }
 
 void process_cel_shading(inout float in_light)
@@ -194,6 +208,7 @@ void main()
     float object_id = texture(object_id_tex, uv).x;
     vec3 post = texture(position_tex, uv).xyz*100.0;
     vec3 factor = vec3(0.5); 
+    float intensity_factor = 1.0;
 
     MatMod full_mod;
     full_mod.normal_factor = 0;
@@ -213,7 +228,28 @@ void main()
             }
         }
     }
-
+    
+    float fow_factor = 1.0;
+    
+    float blur_range = 5.0;
+    for (int i = 0; i < fow_count; ++i)
+    {
+        vec3 diff = post.xyz - fows[i].location.xyz;
+        float angle = atan(diff.y, diff.x);
+        if (angle < 0)
+        {
+            angle += 2*3.14159;
+        }
+        int sector = int(120.0*angle/(2*3.14159));
+        float frac = 120.0*angle/(2*3.14159) - sector;    
+        int sector2 = (sector + 1) % 120;
+        float range = (fows[i].ranges[sector]*(1-frac) + fows[i].ranges[sector2]*frac);
+        if (length(post.xy - fows[i].location.xy) > range) 
+        {
+            fow_factor = 0.5 + 0.5*max(0,blur_range - (length(post.xy - fows[i].location.xy) - range))/blur_range;
+        }
+    }
+    
     if (mod_count > 0)
     {
         //full_mod.color = normalize(full_mod.color);
@@ -235,20 +271,23 @@ void main()
     process_discrete_shading(factor.x, 3, 1.0, 1.0);
     process_discrete_shading(factor.y, 3, 1.0, 1.0);
     process_discrete_shading(factor.z, 3, 1.0, 1.0);
+    vec3 out_fac = normalize(factor)*process_discrete_shading(length(factor), 3, 1.0, 1.0);
+    
+
     if (int(object_id) == selected_object)
     {
         //color *= vec3(1.0,0.5,2.0);
     }
     float gamma = 2.3;
-    vec4 pre_color = vec4(factor*color,1);//evaluate_ssao(post, norm);
+    vec4 pre_color = vec4(out_fac*color,1);//evaluate_ssao(post, norm);
 
     if (object_id < 0)
     { 
         float avg = (pre_color.x + pre_color.y + pre_color.z)/3.0;
         pre_color.xyz = (pre_color.xyz*0.4 + vec3(avg,avg,avg)*0.6);
-        pre_color.xyz = pre_color.xyz*vec3(0.6,0.6,1.0) + vec3(0.2);
+        pre_color.xyz = pre_color.xyz*vec3(0.9,0.9,1.0) + vec3(0.2);
     }
 
-    diffuseColor = pre_color;//vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
+    diffuseColor = fow_factor*pre_color;//vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
 }  
 )SHAD";
