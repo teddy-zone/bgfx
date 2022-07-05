@@ -135,7 +135,77 @@ void Mesh::bind()
 	_vao.bind();
 }
 
+
 void Mesh::load_obj(const std::string& in_file, bool indexed)
+{
+    std::string inputfile = in_file;
+    tinyobj::ObjReaderConfig reader_config;
+    reader_config.mtl_search_path = "./"; // Path to material files
+
+    tinyobj::ObjReader reader;
+
+    if (!reader.ParseFromFile(inputfile, reader_config)) {
+        if (!reader.Error().empty()) {
+            std::cerr << "TinyObjReader: " << reader.Error();
+        }
+        exit(1);
+    }
+
+    if (!reader.Warning().empty()) {
+        std::cout << "TinyObjReader: " << reader.Warning();
+    }
+
+    auto& attrib = reader.GetAttrib();
+    auto& shapes = reader.GetShapes();
+    auto& materials = reader.GetMaterials();
+
+    std::vector<float> normals;
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+
+    for (auto& vertex : attrib.vertices)
+    {
+        vertices.push_back(vertex);
+    }
+    normals.resize(attrib.vertices.size());
+    for (auto& shape : shapes)
+    {
+        float xmin = attrib.vertices[0];
+        float xmax = attrib.vertices[0];
+        float ymin = attrib.vertices[1];
+        float ymax = attrib.vertices[1];
+        float zmin = attrib.vertices[2];
+        float zmax = attrib.vertices[2];
+
+        for (auto& index : shape.mesh.indices)
+        {
+            indices.push_back(index.vertex_index);
+            normals[index.vertex_index * 3] = attrib.normals[index.normal_index * 3];
+            normals[index.vertex_index * 3 + 1] = attrib.normals[index.normal_index * 3 + 1];
+            normals[index.vertex_index * 3 + 2] = attrib.normals[index.normal_index * 3 + 2];
+
+            _octree_vertices.push_back(vertices[index.vertex_index * 3]);
+            _octree_vertices.push_back(vertices[index.vertex_index * 3 + 1]);
+            _octree_vertices.push_back(vertices[index.vertex_index * 3 + 2]);
+
+            if (attrib.vertices[index.vertex_index * 3] < xmin) { xmin = attrib.vertices[index.vertex_index * 3]; }
+            if (attrib.vertices[index.vertex_index * 3 + 1] < ymin) { ymin = attrib.vertices[index.vertex_index * 3 + 1]; }
+            if (attrib.vertices[index.vertex_index * 3 + 2] < zmin) { zmin = attrib.vertices[index.vertex_index * 3 + 2]; }
+            if (attrib.vertices[index.vertex_index * 3] > xmax) { xmax = attrib.vertices[index.vertex_index * 3]; }
+            if (attrib.vertices[index.vertex_index * 3 + 1] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 1]; }
+            if (attrib.vertices[index.vertex_index * 3 + 2] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 2]; }
+        }
+
+        _bmax = glm::vec3(xmax, ymax, zmax);
+        _bmin = glm::vec3(xmin, ymin, zmin);
+        _indexed = true;
+    }
+    set_normals(normals);
+    set_vertices(vertices);
+    set_vertex_indices(indices);
+}
+/*
+void Mesh::load_obj_bad(const std::string& in_file, bool indexed)
 {
     objl::Loader lloader;
     lloader.LoadFile(in_file);
@@ -158,10 +228,6 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
         normals.push_back(v.Normal.Y);
         normals.push_back(v.Normal.Z);
 
-        _octree_vertices.push_back(v.Position.X);
-        _octree_vertices.push_back(v.Position.Y);
-        _octree_vertices.push_back(v.Position.Z);
-
         if (v.Position.X < xmin) { xmin = v.Position.X; }
         if (v.Position.Y < ymin) { ymin = v.Position.Y; }
         if (v.Position.Z < zmin) { zmin = v.Position.Z; }
@@ -172,10 +238,13 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
 
     _bmin = glm::vec3(xmin, ymin, zmin);
     _bmax = glm::vec3(xmax, ymax, zmax);
-
+    _indexed = true;
     for (auto& ind : obj_mesh.Indices)
     {
         indices.push_back(ind);
+        _octree_vertices.push_back(obj_mesh.Vertices[ind].Position.X);
+        _octree_vertices.push_back(obj_mesh.Vertices[ind].Position.Y);
+        _octree_vertices.push_back(obj_mesh.Vertices[ind].Position.Z);
     }
 
     for (int i = 0; i < normals.size() / 3; ++i)
@@ -191,6 +260,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
     set_vertex_indices(indices);
     set_vertex_colors(colors);
 }
+*/
 
 void Mesh::load_obj_old(const std::string& in_file, bool indexed)
 {
