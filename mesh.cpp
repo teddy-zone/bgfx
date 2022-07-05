@@ -1,12 +1,14 @@
 #include "mesh.h"
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 #include "tiny_obj_loader.h"
+#include "OBJ_Loader.h"
 
 #include <iostream>
 #include <cassert>
 
 namespace bgfx
 {
+
 
 Mesh::Mesh()
 {
@@ -134,6 +136,63 @@ void Mesh::bind()
 }
 
 void Mesh::load_obj(const std::string& in_file, bool indexed)
+{
+    objl::Loader lloader;
+    lloader.LoadFile(in_file);
+    auto obj_mesh = lloader.LoadedMeshes[0];
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<float> colors;
+    std::vector<unsigned int> indices;
+
+    float xmin = obj_mesh.Vertices[0].Position.X, ymin = obj_mesh.Vertices[0].Position.Y, zmin = obj_mesh.Vertices[0].Position.Z;
+    float xmax = obj_mesh.Vertices[0].Position.X, ymax = obj_mesh.Vertices[0].Position.Y, zmax = obj_mesh.Vertices[0].Position.Z;
+
+    for (auto& v : obj_mesh.Vertices)
+    {
+        vertices.push_back(v.Position.X);
+        vertices.push_back(v.Position.Y);
+        vertices.push_back(v.Position.Z);
+
+        normals.push_back(v.Normal.X);
+        normals.push_back(v.Normal.Y);
+        normals.push_back(v.Normal.Z);
+
+        _octree_vertices.push_back(v.Position.X);
+        _octree_vertices.push_back(v.Position.Y);
+        _octree_vertices.push_back(v.Position.Z);
+
+        if (v.Position.X < xmin) { xmin = v.Position.X; }
+        if (v.Position.Y < ymin) { ymin = v.Position.Y; }
+        if (v.Position.Z < zmin) { zmin = v.Position.Z; }
+        if (v.Position.X > xmax) { xmax = v.Position.X; }
+        if (v.Position.Y > ymax) { ymax = v.Position.Y; }
+        if (v.Position.Z > zmax) { zmax = v.Position.Z; }
+    }
+
+    _bmin = glm::vec3(xmin, ymin, zmin);
+    _bmax = glm::vec3(xmax, ymax, zmax);
+
+    for (auto& ind : obj_mesh.Indices)
+    {
+        indices.push_back(ind);
+    }
+
+    for (int i = 0; i < normals.size() / 3; ++i)
+    {
+        colors.push_back(obj_mesh.MeshMaterial.Kd.X);
+        colors.push_back(obj_mesh.MeshMaterial.Kd.Y);
+        colors.push_back(obj_mesh.MeshMaterial.Kd.Z);
+        colors.push_back(1.0);
+    }
+
+    set_normals(normals);
+    set_vertices(vertices);
+    set_vertex_indices(indices);
+    set_vertex_colors(colors);
+}
+
+void Mesh::load_obj_old(const std::string& in_file, bool indexed)
 {
     std::string inputfile = in_file;
     tinyobj::ObjReaderConfig reader_config;
@@ -313,6 +372,51 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
     }
     set_solid_color(glm::vec3(1,1,1));
     //set_normal_indices(normal_indices);
+}
+
+std::vector<std::shared_ptr<Mesh>> load_obj(const std::string& in_file, bool indexed)
+{
+    objl::Loader loader;
+    loader.LoadFile(in_file);
+    std::vector<std::shared_ptr<Mesh>> out_meshes;
+    for (auto& obj_mesh : loader.LoadedMeshes)
+    {
+        std::vector<float> vertices;
+        std::vector<float> normals;
+        std::vector<float> colors;
+        std::vector<unsigned int> indices;
+        auto new_mesh = std::make_shared<Mesh>();
+        for (auto& v : obj_mesh.Vertices)
+        {
+            vertices.push_back(v.Position.X);
+            vertices.push_back(v.Position.Y);
+            vertices.push_back(v.Position.Z);
+
+            normals.push_back(v.Normal.X);
+            normals.push_back(v.Normal.Y);
+            normals.push_back(v.Normal.Z);
+        }
+
+        for (auto& ind : obj_mesh.Indices)
+        {
+            indices.push_back(ind);
+        }
+
+        for (int i = 0; i < normals.size() / 3; ++i)
+        {
+            colors.push_back(obj_mesh.MeshMaterial.Kd.X);
+            colors.push_back(obj_mesh.MeshMaterial.Kd.Y);
+            colors.push_back(obj_mesh.MeshMaterial.Kd.Z);
+            colors.push_back(1.0);
+        }
+
+        new_mesh->set_normals(normals);
+        new_mesh->set_vertices(vertices);
+        new_mesh->set_vertex_indices(indices);
+        new_mesh->set_vertex_colors(colors);
+        out_meshes.push_back(new_mesh);
+    }
+    return out_meshes;
 }
 
 }  // namespace bgfx

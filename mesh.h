@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <memory>
 
 #include "glm/glm.hpp"
 
@@ -9,6 +10,8 @@
 
 namespace bgfx
 {
+
+
 
 struct Triangle
 {
@@ -32,6 +35,7 @@ protected:
     Buffer<unsigned int> _normal_indices;
 	VertexArray _vao;
 	bool _indexed = false;
+
 
 public:
 	std::vector<unsigned int> _saved_indices;
@@ -60,7 +64,10 @@ public:
 	int triangle_count();
 	int vertex_count();
 	void bind();
-	void load_obj(const std::string& in_file, bool indexed=false);
+	void load_obj(const std::string& in_file, bool indexed = false);
+	void load_obj_old(const std::string& in_file, bool indexed=false);
 };
+
+std::vector<std::shared_ptr<Mesh>> load_obj(const std::string& in_file, bool indexed=true);
 
 }
