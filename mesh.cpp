@@ -161,6 +161,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
 
     std::vector<float> normals;
     std::vector<float> vertices;
+    std::vector<float> colors;
     std::vector<unsigned int> indices;
 
     for (auto& vertex : attrib.vertices)
@@ -168,6 +169,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
         vertices.push_back(vertex);
     }
     normals.resize(attrib.vertices.size());
+    colors.resize(attrib.vertices.size()*4/3);
     for (auto& shape : shapes)
     {
         float xmin = attrib.vertices[0];
@@ -177,12 +179,28 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
         float zmin = attrib.vertices[2];
         float zmax = attrib.vertices[2];
 
+        int index_index = 0;
         for (auto& index : shape.mesh.indices)
         {
             indices.push_back(index.vertex_index);
             normals[index.vertex_index * 3] = attrib.normals[index.normal_index * 3];
             normals[index.vertex_index * 3 + 1] = attrib.normals[index.normal_index * 3 + 1];
             normals[index.vertex_index * 3 + 2] = attrib.normals[index.normal_index * 3 + 2];
+
+            if (shape.mesh.material_ids[index.vertex_index/3] > 0)
+            {
+                colors[index.vertex_index * 4] = materials[shape.mesh.material_ids[index_index/3]].diffuse[0];
+                colors[index.vertex_index * 4 + 1] = materials[shape.mesh.material_ids[index_index /3]].diffuse[1];
+                colors[index.vertex_index * 4 + 2] = materials[shape.mesh.material_ids[index_index /3]].diffuse[2];
+                colors[index.vertex_index * 4 + 3] = 1.0;
+            }
+            else
+            {
+                colors[index.vertex_index * 4] = 1.0;
+                colors[index.vertex_index * 4 + 1] = 0.0;
+                colors[index.vertex_index * 4 + 2] = 1.0;
+                colors[index.vertex_index * 4 + 3] = 1.0;
+            }
 
             _octree_vertices.push_back(vertices[index.vertex_index * 3]);
             _octree_vertices.push_back(vertices[index.vertex_index * 3 + 1]);
@@ -194,6 +212,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
             if (attrib.vertices[index.vertex_index * 3] > xmax) { xmax = attrib.vertices[index.vertex_index * 3]; }
             if (attrib.vertices[index.vertex_index * 3 + 1] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 1]; }
             if (attrib.vertices[index.vertex_index * 3 + 2] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 2]; }
+            index_index++;
         }
 
         _bmax = glm::vec3(xmax, ymax, zmax);
@@ -203,6 +222,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
     set_normals(normals);
     set_vertices(vertices);
     set_vertex_indices(indices);
+    set_vertex_colors(colors);
 }
 /*
 void Mesh::load_obj_bad(const std::string& in_file, bool indexed)
