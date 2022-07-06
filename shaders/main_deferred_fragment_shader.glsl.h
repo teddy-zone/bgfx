@@ -246,7 +246,7 @@ void main()
         float range = (fows[i].ranges[sector]*(1-frac) + fows[i].ranges[sector2]*frac);
         if (length(post.xy - fows[i].location.xy) > range) 
         {
-            fow_factor = 0.5 + 0.5*max(0,blur_range - (length(post.xy - fows[i].location.xy) - range))/blur_range;
+            fow_factor = 0.75 + 0.25*max(0,blur_range - (length(post.xy - fows[i].location.xy) - range))/blur_range;
         }
     }
     
@@ -271,7 +271,7 @@ void main()
     process_discrete_shading(factor.x, 3, 1.0, 1.0);
     process_discrete_shading(factor.y, 3, 1.0, 1.0);
     process_discrete_shading(factor.z, 3, 1.0, 1.0);
-    vec3 out_fac = normalize(factor)*process_discrete_shading(length(factor), 3, 1.0, 1.0);
+    vec3 out_fac = normalize(factor)*process_discrete_shading(length(factor), 8, 1.0, 1.0);
     
 
     if (int(object_id) == selected_object)
@@ -284,7 +284,7 @@ void main()
     if (object_id < 0)
     { 
         float avg = (pre_color.x + pre_color.y + pre_color.z)/3.0;
-        pre_color.xyz = (pre_color.xyz*0.4 + vec3(avg,avg,avg)*0.6);
+        pre_color.xyz = (pre_color.xyz*0.4 + vec3(avg,avg,avg)*0.1);
         pre_color.xyz = pre_color.xyz*vec3(0.9,0.9,1.0) + vec3(0.2);
     }
 

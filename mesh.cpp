@@ -211,7 +211,7 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
             if (attrib.vertices[index.vertex_index * 3 + 2] < zmin) { zmin = attrib.vertices[index.vertex_index * 3 + 2]; }
             if (attrib.vertices[index.vertex_index * 3] > xmax) { xmax = attrib.vertices[index.vertex_index * 3]; }
             if (attrib.vertices[index.vertex_index * 3 + 1] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 1]; }
-            if (attrib.vertices[index.vertex_index * 3 + 2] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 2]; }
+            if (attrib.vertices[index.vertex_index * 3 + 2] > zmax) { zmax = attrib.vertices[index.vertex_index * 3 + 2]; }
             index_index++;
         }
 
