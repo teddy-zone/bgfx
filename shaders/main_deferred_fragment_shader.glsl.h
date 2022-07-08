@@ -142,6 +142,14 @@ void evaluate_decal_shadow(in Decal in_decal, in vec3 pos, inout vec3 color, ino
     return;
 }
 
+// Footstep decal 
+void evaluate_decal_footstep(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float dist = length(in_decal.location.xy - pos.xy);  
+    color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    return;
+}
+
 void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
     if (in_decal.type == 1)
@@ -163,6 +171,10 @@ void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3
     else if (in_decal.type == 5)
     {
         evaluate_decal_shadow(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 6)
+    {
+        evaluate_decal_footstep(in_decal, pos, color, normal, lit_flag);
     }
 }
 
