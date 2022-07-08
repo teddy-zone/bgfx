@@ -139,4 +139,32 @@ void Texture::set_interpolation_mode(InterpMode interp_mode)
 
 }
 
+void Texture::write_to_region(int top_left_x, int top_left_y, int width, int height, const std::vector<char>& data)
+{
+	bind();
+	glTexSubImage2D(GL_TEXTURE_2D, 0, top_left_x, top_left_y, width, height, GL_RGB, GL_FLOAT, data.data());
+
+}
+
+void Texture::read_data_to_memory()
+{
+	bind();
+	_data.resize(_size_y*_size_x*3);
+	
+	glGetTexImage(GL_TEXTURE_2D,
+		0,
+		GL_RGB,
+		GL_FLOAT,
+		_data.data());
+}
+
+glm::vec3 Texture::get_pixel(int x, int y)
+{
+	return glm::vec3(
+		_data[3 * _size_x * y + 3 * x],
+		_data[3 * _size_x * y + 3 * x + 1],
+		_data[3 * _size_x * y + 3 * x + 2]);
+}
+
+
 }  // namespace bgfx

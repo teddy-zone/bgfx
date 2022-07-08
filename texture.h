@@ -2,6 +2,8 @@
 
 #include <deque>
 #include <string>
+#include <vector>
+#include <glm/glm.hpp>
 
 namespace bgfx
 {
@@ -17,6 +19,7 @@ class Texture
 	static int _current_texture_slot;
 	static std::deque<int> _free_slots;
 	std::string _name;
+	std::vector<float> _data;
 
 public:
 	enum class InterpMode
@@ -38,6 +41,9 @@ public:
 	void set_slot(unsigned int in_slot) { _texture_slot = in_slot; }
 	unsigned int gl_id() { return _gl_id; }
 	void set_interpolation_mode(InterpMode interp_mode);
+	void write_to_region(int top_left_x, int top_left_y, int width, int height, const std::vector<char>& data);
+	void read_data_to_memory();
+	glm::vec3 get_pixel(int x, int y);
 
 };
 
