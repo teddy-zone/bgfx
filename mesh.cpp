@@ -10,13 +10,19 @@ namespace bgfx
 {
 
 
-Mesh::Mesh()
+Mesh::Mesh(bool instanced):
+    _instanced(instanced)
 {
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertices), "vpos", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_normals), "vnorm", 3, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_uv), "vuv", 2, bgfx::AttributeType::FLOAT);
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_color), "vcolor", 4, bgfx::AttributeType::FLOAT);
+    if (instanced)
+    {
+        _vao.add_buffer(dynamic_cast<BufferBase*>(&_instance_offsets), "ipos", 3, bgfx::AttributeType::FLOAT, 0, true);
+    }
 	_vao.add_buffer(dynamic_cast<BufferBase*>(&_vertex_indices), "vvind", 1, bgfx::AttributeType::UNSIGNED_INT);
+    
 }
 
 void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals)
@@ -27,6 +33,11 @@ void Mesh::set_vertices(const std::vector<float>& in_vertices, bool do_calc_norm
 	}
 	_vertices.set_data(in_vertices);
     _saved_vertices = in_vertices;
+}
+
+void Mesh::set_instance_offsets(const std::vector<float>& in_offsets)
+{
+    _instance_offsets.set_data(in_offsets);
 }
 
 void Mesh::set_vertex_indices(const std::vector<unsigned int>& in_data)

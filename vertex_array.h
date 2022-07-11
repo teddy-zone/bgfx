@@ -24,12 +24,13 @@ protected:
 	std::map<std::string, BufferBase*> _buffers;
 	std::map<std::string, int> _buffer_index;
 	int _buffer_indices;
+	bool _instanced;
 
 public:
 	VertexArray();
 
 	virtual void bind();
-	void add_buffer(BufferBase* in_buf, std::string name, int size, AttributeType type, int stride = 0);
+	void add_buffer(BufferBase* in_buf, std::string name, int size, AttributeType type, int stride = 0, bool instanced=false);
 
 };
 

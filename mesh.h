@@ -26,18 +26,23 @@ struct Triangle
 class Mesh
 {
 protected:
-    friend class RenderableMesh;
+	friend class RenderableMesh;
+	friend class LineObject;
 	Buffer<float> _vertices;
 	Buffer<float> _normals;
 	Buffer<float> _uv;
 	Buffer<float> _vertex_color;
+	Buffer<float> _instance_offsets;
     Buffer<unsigned int> _vertex_indices;
     Buffer<unsigned int> _normal_indices;
 	VertexArray _vao;
-	bool _indexed = false;
+	
 
 
 public:
+	bool _indexed = false;
+	bool _instanced = false;
+
 	std::vector<unsigned int> _saved_indices;
 	std::vector<float> _saved_vertices;
 	std::vector<float> _octree_vertices;
@@ -49,8 +54,9 @@ public:
 	glm::vec3 _bmin;
 	glm::vec3 _bmax;
 
-	Mesh();
+	Mesh(bool instanced=false);
 	void set_vertices(const std::vector<float>& in_vertices, bool do_calc_normals = false);
+	void set_instance_offsets(const std::vector<float>& in_offsets);
 	void set_vertex_indices(const std::vector<unsigned int>& in_data);
 	void set_normals(const std::vector<float>& in_normals);
 	void set_normal_indices(const std::vector<unsigned int>& in_data);

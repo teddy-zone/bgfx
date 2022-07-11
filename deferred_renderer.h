@@ -35,6 +35,7 @@ public:
 
     std::shared_ptr<bgfx::RenderableMesh> rmesh;
     std::shared_ptr<bgfx::Material> quad_mat;
+    std::shared_ptr<bgfx::Material> instanced_gmat;
     std::shared_ptr<bgfx::Material> gmat;
     std::shared_ptr<bgfx::Material> post_process_mat;
 
@@ -51,7 +52,9 @@ public:
 
     DeferredRenderer(int x_res, int y_res);
 
-    virtual void draw();
+    virtual void draw(bool clear=true);
+
+    virtual void draw_instanced(bool clear=true);
 
     void bind_default();
 

@@ -55,6 +55,8 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
 
     gmat = std::make_shared<bgfx::Material>(deferred_quad_vertex_shader,
         deferred_quad_fragment_shader, true);
+    instanced_gmat = std::make_shared<bgfx::Material>(deferred_quad_vertex_shader_instanced,
+        deferred_quad_fragment_shader, true);
     quad_mat = std::make_shared<bgfx::Material>(main_deferred_vertex_shader, main_deferred_fragment_shader, true);
 
     rmesh = std::make_shared<bgfx::RenderableMesh>();
@@ -94,15 +96,33 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     
 }
 
-void DeferredRenderer::draw()
+void DeferredRenderer::draw(bool clear)
 {
     glViewport(0,0,x_res/res_factor, y_res/res_factor);
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     g_buffer->bind();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (clear)
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
     //std::vector<unsigned int> attachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     //glDrawBuffers(3, attachments.data());
     gmat->use();
+
+}
+
+void DeferredRenderer::draw_instanced(bool clear)
+{
+    glViewport(0, 0, x_res / res_factor, y_res / res_factor);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    g_buffer->bind();
+    if (clear)
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }   
+    //std::vector<unsigned int> attachments = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    //glDrawBuffers(3, attachments.data());
+    instanced_gmat->use();
 
 }
 

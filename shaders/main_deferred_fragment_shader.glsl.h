@@ -221,6 +221,11 @@ void main()
     vec3 post = texture(position_tex, uv).xyz*100.0;
     vec3 factor = vec3(0.5); 
     float intensity_factor = 1.0;
+    
+    if (dot(norm, vec3(0,0,1)) > 0.8)
+    {
+        color = vec3(1,1,1);
+    }
 
     MatMod full_mod;
     full_mod.normal_factor = 0;

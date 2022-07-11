@@ -26,7 +26,7 @@ void VertexArray::bind()
 #endif
 }
 
-void VertexArray::add_buffer(BufferBase* in_buf, std::string name, int size, AttributeType type, int stride)
+void VertexArray::add_buffer(BufferBase* in_buf, std::string name, int size, AttributeType type, int stride, bool instanced)
 {
 	bind();
 	in_buf->bind();
@@ -53,10 +53,15 @@ void VertexArray::add_buffer(BufferBase* in_buf, std::string name, int size, Att
 #ifdef ENABLE_GRAPHICS
 	glVertexAttribPointer(_buffer_indices, size, buf_type, GL_FALSE, stride, nullptr);
 	glEnableVertexAttribArray(_buffer_indices);
+	if (instanced)
+	{
+		glVertexAttribDivisor(_buffer_indices, 1);
+	}
 #endif
 	_buffers[name] = in_buf;
 	_buffer_index[name] = _buffer_indices;
 	_buffer_indices += 1;
+	_instanced = true;
 }
 
 }  // namespace bgfx

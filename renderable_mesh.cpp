@@ -23,6 +23,7 @@ void RenderableMesh::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, 
 	in_mat->use();
 	
 	in_mat->set_uniform_i1("object_id", _id);
+	in_mat->set_uniform_i1("is_instanced", int(_mesh->_instanced));
 
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
@@ -71,11 +72,25 @@ void RenderableMesh::draw()
 	if (_mesh->_indexed)
 	{
 		_mesh->_vertex_indices.bind(BindPoint::ELEMENT_ARRAY_BUFFER);
-		glDrawElements(GL_TRIANGLES, _mesh->_vertex_indices.get_size(), GL_UNSIGNED_INT, (void*)0);
+		if (_mesh->_instanced)
+		{
+			glDrawElementsInstanced(GL_TRIANGLES, _mesh->_vertex_indices.get_size(), GL_UNSIGNED_INT, (void*)0, _mesh->_instance_offsets.get_size());
+		}
+		else
+		{
+			glDrawElements(GL_TRIANGLES, _mesh->_vertex_indices.get_size(), GL_UNSIGNED_INT, (void*)0);
+		}	
 	}
 	else
 	{
-		glDrawArrays(GL_TRIANGLES, 0, _mesh->triangle_count()*3);
+		if (_mesh->_instanced)
+		{
+			glDrawArraysInstanced(GL_TRIANGLES, 0, _mesh->triangle_count() * 3, _mesh->_instance_offsets.get_size());
+		}
+		else
+		{
+			glDrawArrays(GL_TRIANGLES, 0, _mesh->triangle_count() * 3);
+		}
 	}
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)
