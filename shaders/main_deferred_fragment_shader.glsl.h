@@ -13,6 +13,7 @@ struct PointLight
     vec4 location;
     vec4 color;
     float intensity;
+    int visible;
 };
 
 struct Decal
@@ -59,10 +60,50 @@ uniform sampler2D color_tex;
 uniform sampler2D object_id_tex;
 uniform sampler2D fov_tex;
 
+#define PI 3.14159
+
 uniform int selected_object;
 uniform int weather_state;
 #define RAIN 2
 #define SNOW 1
+
+float rand(vec2 c){
+	return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float noise(vec2 p, float freq ){
+	float unit = 360/freq;
+	vec2 ij = floor(p/unit);
+	vec2 xy = mod(p,unit)/unit;
+	//xy = 3.*xy*xy-2.*xy*xy*xy;
+	xy = .5*(1.-cos(PI*xy));
+	float a = rand((ij+vec2(0.,0.)));
+	float b = rand((ij+vec2(1.,0.)));
+	float c = rand((ij+vec2(0.,1.)));
+	float d = rand((ij+vec2(1.,1.)));
+	float x1 = mix(a, b, xy.x);
+	float x2 = mix(c, d, xy.x);
+	return mix(x1, x2, xy.y);
+}
+
+float pNoise(vec2 p, int res){
+	float persistance = .5;
+	float n = 0.;
+	float normK = 0.;
+	float f = 4.;
+	float amp = 1.;
+	int iCount = 0;
+	for (int i = 0; i<50; i++){
+		n+=amp*noise(p, f);
+		f*=2.;
+		normK+=amp;
+		amp*=persistance;
+		if (iCount == res) break;
+		iCount++;
+	}
+	float nf = n/normK;
+	return nf*nf*nf*nf;
+}
 
 float evaluate_ssao(vec3 cur_loc, vec3 cur_norm)
 {
@@ -97,7 +138,7 @@ struct MatMod
 };
 
 // Waves decal
-void evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     float wavelength = 1.0;
     float dist = length(in_decal.location.xy - pos.xy);  
@@ -111,13 +152,13 @@ void evaluate_decal_1(in Decal in_decal, in vec3 pos, inout vec3 color, inout ve
 }
 
 // Icy decal
-void evaluate_decal_2(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_decal_2(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     return;
 }
 
 // Circle targeting decal
-void evaluate_decal_circle_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_decal_circle_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     float dist = length(in_decal.location.xy - pos.xy);  
     color = color + vec3(-0.1, -0.1, 0.5) + vec3(1,1,1)*1.0/(in_decal.radius - dist);
@@ -125,7 +166,7 @@ void evaluate_decal_circle_targeting(in Decal in_decal, in vec3 pos, inout vec3 
 }
 
 // Cone targeting decal
-void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     vec3 direction1 = normalize(in_decal.location - in_decal.location2).xyz;
     vec3 direction2 = normalize(pos - in_decal.location2.xyz);
@@ -139,23 +180,31 @@ void evaluate_decal_cone_targeting(in Decal in_decal, in vec3 pos, inout vec3 co
 }
 
 // Shadow decal 
-void evaluate_decal_shadow(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_decal_shadow(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     float dist = length(in_decal.location.xy - pos.xy);  
-    color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    //color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    if (is_static)
+    {
+        shadow_factor = 0.7;
+    }
+    lit_flag = false;
     return;
 }
 
 // Footstep decal 
-void evaluate_decal_footstep(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_decal_footstep(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
-    float dist = length(in_decal.location.xy - pos.xy);  
-    color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    if (is_static)
+    {
+        float dist = length(in_decal.location.xy - pos.xy);  
+        color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    }
     return;
 }
 
 // Raindrop decal
-void evaluate_raindrop_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+void evaluate_raindrop_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     float wavelength = 1.0;
     float dist = length(in_decal.location.xy - pos.xy);  
@@ -168,35 +217,56 @@ void evaluate_raindrop_decal(in Decal in_decal, in vec3 pos, inout vec3 color, i
     return;
 }
 
-void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+// Cloud decal
+void evaluate_cloud_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
+{
+    float dist = length(in_decal.location.xy - pos.xy);  
+    //color = color*vec3(0.7,0.7,0.75);// - vec3(0.1, 0.1, 0.05);// + vec3(1,1,1)*1.0/(in_decal.radius - dist);
+    if (dist > in_decal.radius - 4.0)
+    {
+        shadow_factor = 0.7 + ((dist - (in_decal.radius - 4.0))/(4.0))*0.3;
+    }
+    else
+    {
+        shadow_factor = 0.7;
+    }
+    lit_flag = false;
+    return;
+}
+
+void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag, inout bool is_static, inout float shadow_factor)
 {
     if (in_decal.type == 1)
     {
-        evaluate_decal_1(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_1(in_decal, pos, color, normal, lit_flag,is_static, shadow_factor);
     }
     else if (in_decal.type == 2)
     {
-        evaluate_decal_2(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_2(in_decal, pos, color, normal, lit_flag,is_static, shadow_factor);
     }
     else if (in_decal.type == 3)
     {
-        evaluate_decal_circle_targeting(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_circle_targeting(in_decal, pos, color, normal, lit_flag, is_static, shadow_factor);
     }
     else if (in_decal.type == 4)
     {
-        evaluate_decal_cone_targeting(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_cone_targeting(in_decal, pos, color, normal, lit_flag, is_static,shadow_factor);
     }
     else if (in_decal.type == 5)
     {
-        evaluate_decal_shadow(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_shadow(in_decal, pos, color, normal, lit_flag, is_static, shadow_factor);
     }
     else if (in_decal.type == 6)
     {
-        evaluate_decal_footstep(in_decal, pos, color, normal, lit_flag);
+        evaluate_decal_footstep(in_decal, pos, color, normal, lit_flag, is_static, shadow_factor);
     }
     else if (in_decal.type == 7)
     {
-        evaluate_raindrop_decal(in_decal, pos, color, normal, lit_flag);
+        evaluate_raindrop_decal(in_decal, pos, color, normal, lit_flag, is_static, shadow_factor);
+    }
+    else if (in_decal.type == 8)
+    {
+        evaluate_cloud_decal(in_decal, pos, color, normal, lit_flag, is_static, shadow_factor);
     }
 }
 
@@ -262,18 +332,26 @@ void main()
     full_mod.normal = vec3(0);
     full_mod.color = vec4(0);
     float mod_count = 0;
-    if (object_id < 0)
+    bool is_lit = true;
+    bool is_static = object_id < 0;
+    float total_shadow_factor = 1.0;
+    //if (object_id < 0)
     {
         for (int i = 0; i < decal_count; ++i)
         {
             if ((decals[i].type != 4 && length(post.xy - decals[i].location.xy) < decals[i].radius) ||
                 (decals[i].type == 4 && length(post.xy - decals[i].location2.xy) < decals[i].radius))
             {
-                bool is_lit;
-                evaluate_decal(decals[i], post, color, norm, is_lit);
+                float local_shadow_factor = 1.0;
+                evaluate_decal(decals[i], post, color, norm, is_lit, is_static, local_shadow_factor);
+                total_shadow_factor = min(local_shadow_factor, total_shadow_factor);
                 mod_count += 1;
             }
         }
+    }
+    //if (!is_lit)
+    {
+        color = color*vec3(1.0)*total_shadow_factor;
     }
     
     float fow_factor = 1.0;
@@ -311,12 +389,15 @@ void main()
     {
         for (int i = 0; i < point_light_count; ++i)
         {
-            vec3 r = point_lights[i].location.xyz - post;
-            vec3 point_to_cam = normalize(camera_location - post);
-            vec3 d = -r;
-            vec3 reflection = d - 2*(norm*dot(d,norm));
-            factor += point_lights[i].color.xyz*point_lights[i].intensity*10000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
-            spec += max(0,dot(point_to_cam, reflection))*max(0,dot(point_to_cam, reflection));
+            if (point_lights[i].visible != 0)
+            {
+                vec3 r = point_lights[i].location.xyz - post;
+                vec3 point_to_cam = normalize(camera_location - post);
+                vec3 d = -r;
+                vec3 reflection = d - 2*(norm*dot(d,norm));
+                factor += point_lights[i].color.xyz*point_lights[i].intensity*10000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
+                spec += max(0,dot(point_to_cam, reflection))*max(0,dot(point_to_cam, reflection));
+            }
         }
     }
 
@@ -334,7 +415,6 @@ void main()
     process_discrete_shading(factor.y, 3, 1.0, 1.0);
     process_discrete_shading(factor.z, 3, 1.0, 1.0);
     vec3 out_fac = normalize(factor)*process_discrete_shading(length(factor), 8, 1.0, 1.0);
-    
 
     if (int(object_id) == selected_object)
     {

@@ -66,8 +66,8 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     rmesh->get_mesh()->set_uv_coords({ {1,0, 0,1, 0,0, 0,1, 1,1, 1,0} });
     rmesh->get_mesh()->set_vertex_indices({ {0,1,2,3,4,5} });
     rmesh->set_material(quad_mat);
-    point_lights.push_back({ {10,10,50,1}, {1,0.9,0.8,1}, 0.1, {0,0,0} });
-    point_lights.push_back({ {100,50,50,1}, {0.9,1,1,1}, 0.2, {0,0,0} });
+    point_lights.push_back({ {10,10,50,1}, {1,0.9,0.8,1}, 0.1, 1, {0,0}});
+    point_lights.push_back({ {100,50,50,1}, {0.9,1,1,1}, 0.2, 1, {0,0} });
     Decal test_decal;
     test_decal.color = glm::vec4(0,0,1,1);
     test_decal.location = glm::vec4(50,50,50,1);

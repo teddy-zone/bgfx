@@ -10,7 +10,8 @@ struct PointLight
 	glm::vec4 location;
 	glm::vec4 color;
 	float intensity;
-	float pad[3];
+	int visible = 1;
+	float pad[2];
 };
 
 }
