@@ -175,64 +175,126 @@ void Mesh::load_obj(const std::string& in_file, bool indexed)
     std::vector<float> colors;
     std::vector<unsigned int> indices;
 
-    for (auto& vertex : attrib.vertices)
+    if (indexed)
     {
-        vertices.push_back(vertex);
-    }
-    normals.resize(attrib.vertices.size());
-    colors.resize(attrib.vertices.size()*4/3);
-    for (auto& shape : shapes)
-    {
-        float xmin = attrib.vertices[0];
-        float xmax = attrib.vertices[0];
-        float ymin = attrib.vertices[1];
-        float ymax = attrib.vertices[1];
-        float zmin = attrib.vertices[2];
-        float zmax = attrib.vertices[2];
-
-        int index_index = 0;
-        for (auto& index : shape.mesh.indices)
+        for (auto& vertex : attrib.vertices)
         {
-            indices.push_back(index.vertex_index);
-            normals[index.vertex_index * 3] = attrib.normals[index.normal_index * 3];
-            normals[index.vertex_index * 3 + 1] = attrib.normals[index.normal_index * 3 + 1];
-            normals[index.vertex_index * 3 + 2] = attrib.normals[index.normal_index * 3 + 2];
-
-            if (shape.mesh.material_ids[index.vertex_index/3] > 0)
-            {
-                colors[index.vertex_index * 4] = materials[shape.mesh.material_ids[index_index/3]].diffuse[0];
-                colors[index.vertex_index * 4 + 1] = materials[shape.mesh.material_ids[index_index /3]].diffuse[1];
-                colors[index.vertex_index * 4 + 2] = materials[shape.mesh.material_ids[index_index /3]].diffuse[2];
-                colors[index.vertex_index * 4 + 3] = 1.0;
-            }
-            else
-            {
-                colors[index.vertex_index * 4] = 1.0;
-                colors[index.vertex_index * 4 + 1] = 0.0;
-                colors[index.vertex_index * 4 + 2] = 1.0;
-                colors[index.vertex_index * 4 + 3] = 1.0;
-            }
-
-            _octree_vertices.push_back(vertices[index.vertex_index * 3]);
-            _octree_vertices.push_back(vertices[index.vertex_index * 3 + 1]);
-            _octree_vertices.push_back(vertices[index.vertex_index * 3 + 2]);
-
-            if (attrib.vertices[index.vertex_index * 3] < xmin) { xmin = attrib.vertices[index.vertex_index * 3]; }
-            if (attrib.vertices[index.vertex_index * 3 + 1] < ymin) { ymin = attrib.vertices[index.vertex_index * 3 + 1]; }
-            if (attrib.vertices[index.vertex_index * 3 + 2] < zmin) { zmin = attrib.vertices[index.vertex_index * 3 + 2]; }
-            if (attrib.vertices[index.vertex_index * 3] > xmax) { xmax = attrib.vertices[index.vertex_index * 3]; }
-            if (attrib.vertices[index.vertex_index * 3 + 1] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 1]; }
-            if (attrib.vertices[index.vertex_index * 3 + 2] > zmax) { zmax = attrib.vertices[index.vertex_index * 3 + 2]; }
-            index_index++;
+            vertices.push_back(vertex);
         }
+        normals.resize(attrib.vertices.size());
+        colors.resize(attrib.vertices.size() * 4 / 3);
+        for (auto& shape : shapes)
+        {
+            float xmin = attrib.vertices[0];
+            float xmax = attrib.vertices[0];
+            float ymin = attrib.vertices[1];
+            float ymax = attrib.vertices[1];
+            float zmin = attrib.vertices[2];
+            float zmax = attrib.vertices[2];
 
-        _bmax = glm::vec3(xmax, ymax, zmax);
-        _bmin = glm::vec3(xmin, ymin, zmin);
-        _indexed = true;
+            int index_index = 0;
+            for (auto& index : shape.mesh.indices)
+            {
+                indices.push_back(index.vertex_index);
+                normals[index.vertex_index * 3] = attrib.normals[index.normal_index * 3];
+                normals[index.vertex_index * 3 + 1] = attrib.normals[index.normal_index * 3 + 1];
+                normals[index.vertex_index * 3 + 2] = attrib.normals[index.normal_index * 3 + 2];
+
+                if (shape.mesh.material_ids[index.vertex_index / 3] > 0)
+                {
+                    colors[index.vertex_index * 4] = materials[shape.mesh.material_ids[index_index / 3]].diffuse[0];
+                    colors[index.vertex_index * 4 + 1] = materials[shape.mesh.material_ids[index_index / 3]].diffuse[1];
+                    colors[index.vertex_index * 4 + 2] = materials[shape.mesh.material_ids[index_index / 3]].diffuse[2];
+                    colors[index.vertex_index * 4 + 3] = 1.0;
+                }
+                else
+                {
+                    colors[index.vertex_index * 4] = 1.0;
+                    colors[index.vertex_index * 4 + 1] = 0.0;
+                    colors[index.vertex_index * 4 + 2] = 1.0;
+                    colors[index.vertex_index * 4 + 3] = 1.0;
+                }
+
+                _octree_vertices.push_back(vertices[index.vertex_index * 3]);
+                _octree_vertices.push_back(vertices[index.vertex_index * 3 + 1]);
+                _octree_vertices.push_back(vertices[index.vertex_index * 3 + 2]);
+
+                if (attrib.vertices[index.vertex_index * 3] < xmin) { xmin = attrib.vertices[index.vertex_index * 3]; }
+                if (attrib.vertices[index.vertex_index * 3 + 1] < ymin) { ymin = attrib.vertices[index.vertex_index * 3 + 1]; }
+                if (attrib.vertices[index.vertex_index * 3 + 2] < zmin) { zmin = attrib.vertices[index.vertex_index * 3 + 2]; }
+                if (attrib.vertices[index.vertex_index * 3] > xmax) { xmax = attrib.vertices[index.vertex_index * 3]; }
+                if (attrib.vertices[index.vertex_index * 3 + 1] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 1]; }
+                if (attrib.vertices[index.vertex_index * 3 + 2] > zmax) { zmax = attrib.vertices[index.vertex_index * 3 + 2]; }
+                index_index++;
+            }
+
+            _bmax = glm::vec3(xmax, ymax, zmax);
+            _bmin = glm::vec3(xmin, ymin, zmin);
+            _indexed = true;
+        }
+        set_vertex_indices(indices);
+    }
+    else
+    {
+        std::vector<float> raw_vertices;
+        for (auto& vertex : attrib.vertices)
+        {
+            raw_vertices.push_back(vertex);
+        }
+        for (auto& shape : shapes)
+        {
+            float xmin = attrib.vertices[0];
+            float xmax = attrib.vertices[0];
+            float ymin = attrib.vertices[1];
+            float ymax = attrib.vertices[1];
+            float zmin = attrib.vertices[2];
+            float zmax = attrib.vertices[2];
+
+            int index_index = 0;
+            for (auto& index : shape.mesh.indices)
+            {
+                normals.push_back(attrib.normals[index.normal_index * 3]);
+                normals.push_back(attrib.normals[index.normal_index * 3 + 1]);
+                normals.push_back(attrib.normals[index.normal_index * 3 + 2]);
+                vertices.push_back(attrib.vertices[index.vertex_index * 3]);
+                vertices.push_back(attrib.vertices[index.vertex_index * 3 + 1]);
+                vertices.push_back(attrib.vertices[index.vertex_index * 3 + 2]);
+                _octree_vertices.push_back(attrib.vertices[index.vertex_index * 3]);
+                _octree_vertices.push_back(attrib.vertices[index.vertex_index * 3 + 1]);
+                _octree_vertices.push_back(attrib.vertices[index.vertex_index * 3 + 2]);
+
+                if (shape.mesh.material_ids[index.vertex_index / 3] > 0)
+                {
+                    colors.push_back(materials[shape.mesh.material_ids[index_index / 3]].diffuse[0]);
+                    colors.push_back(materials[shape.mesh.material_ids[index_index / 3]].diffuse[1]);
+                    colors.push_back(materials[shape.mesh.material_ids[index_index / 3]].diffuse[2]);
+                    colors.push_back(1.0);
+                }
+                else
+                {
+                    colors.push_back(1.0);
+                    colors.push_back(0.0);
+                    colors.push_back(1.0);
+                    colors.push_back(1.0);
+                }
+
+
+                if (attrib.vertices[index.vertex_index * 3] < xmin) { xmin = attrib.vertices[index.vertex_index * 3]; }
+                if (attrib.vertices[index.vertex_index * 3 + 1] < ymin) { ymin = attrib.vertices[index.vertex_index * 3 + 1]; }
+                if (attrib.vertices[index.vertex_index * 3 + 2] < zmin) { zmin = attrib.vertices[index.vertex_index * 3 + 2]; }
+                if (attrib.vertices[index.vertex_index * 3] > xmax) { xmax = attrib.vertices[index.vertex_index * 3]; }
+                if (attrib.vertices[index.vertex_index * 3 + 1] > ymax) { ymax = attrib.vertices[index.vertex_index * 3 + 1]; }
+                if (attrib.vertices[index.vertex_index * 3 + 2] > zmax) { zmax = attrib.vertices[index.vertex_index * 3 + 2]; }
+                index_index++;
+            }
+
+            _bmax = glm::vec3(xmax, ymax, zmax);
+            _bmin = glm::vec3(xmin, ymin, zmin);
+            _indexed = false;
+        }
     }
     set_normals(normals);
     set_vertices(vertices);
-    set_vertex_indices(indices);
     set_vertex_colors(colors);
 }
 /*

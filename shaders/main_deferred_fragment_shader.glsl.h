@@ -51,6 +51,7 @@ layout (std430, binding=7) buffer fows_uni
 uniform int point_light_count;
 uniform int decal_count;
 uniform int fow_count;
+uniform vec3 camera_location;
 
 uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
@@ -59,6 +60,9 @@ uniform sampler2D object_id_tex;
 uniform sampler2D fov_tex;
 
 uniform int selected_object;
+uniform int weather_state;
+#define RAIN 2
+#define SNOW 1
 
 float evaluate_ssao(vec3 cur_loc, vec3 cur_norm)
 {
@@ -150,6 +154,20 @@ void evaluate_decal_footstep(in Decal in_decal, in vec3 pos, inout vec3 color, i
     return;
 }
 
+// Raindrop decal
+void evaluate_raindrop_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
+{
+    float wavelength = 1.0;
+    float dist = length(in_decal.location.xy - pos.xy);  
+    float wave_freq = 10.0/pow(dist + 1,2);
+    vec3 radial = vec3(normalize(pos.xy - in_decal.location.xy), 0);  
+    float wave_amplitude = 1/pow(dist + 1, 2);
+    float val = wave_amplitude*sin(wave_freq*in_decal.t + dist*wavelength);
+    float d_val = cos(wave_freq*in_decal.t + dist*wavelength);
+    normal = normal + 0.3*(1.0 - in_decal.t)*normalize(radial + vec3(0,0,1)/(d_val));
+    return;
+}
+
 void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3 normal, inout bool lit_flag)
 {
     if (in_decal.type == 1)
@@ -175,6 +193,10 @@ void evaluate_decal(in Decal in_decal, in vec3 pos, inout vec3 color, inout vec3
     else if (in_decal.type == 6)
     {
         evaluate_decal_footstep(in_decal, pos, color, normal, lit_flag);
+    }
+    else if (in_decal.type == 7)
+    {
+        evaluate_raindrop_decal(in_decal, pos, color, normal, lit_flag);
     }
 }
 
@@ -222,9 +244,17 @@ void main()
     vec3 factor = vec3(0.5); 
     float intensity_factor = 1.0;
     
-    if (dot(norm, vec3(0,0,1)) > 0.8)
+    if (weather_state == SNOW)
     {
-        color = vec3(1,1,1);
+        // Snow
+        if (dot(norm, vec3(0,0,1)) > 0.8)
+        {
+            color = vec3(1,1,1);
+        }
+    }
+    else if (weather_state == RAIN)
+    {
+        
     }
 
     MatMod full_mod;
@@ -275,14 +305,29 @@ void main()
         //norm = normalize(full_mod.normal*full_mod.normal_factor + norm*(1 - full_mod.normal_factor));
     }
 
+    float spec = 0;
+
     if (point_light_count > 0)
     {
         for (int i = 0; i < point_light_count; ++i)
         {
             vec3 r = point_lights[i].location.xyz - post;
-
+            vec3 point_to_cam = normalize(camera_location - post);
+            vec3 d = -r;
+            vec3 reflection = d - 2*(norm*dot(d,norm));
             factor += point_lights[i].color.xyz*point_lights[i].intensity*10000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
+            spec += max(0,dot(point_to_cam, reflection))*max(0,dot(point_to_cam, reflection));
         }
+    }
+
+    if (weather_state == RAIN)
+    {
+        // Rain
+        spec = spec*max(0,dot(norm, vec3(0,0,1)))*max(0,dot(norm, vec3(0,0,1)));
+    }
+    else
+    {
+        spec = 0;
     }
 
     process_discrete_shading(factor.x, 3, 1.0, 1.0);
@@ -304,7 +349,14 @@ void main()
         pre_color.xyz = (pre_color.xyz*0.4 + vec3(avg,avg,avg)*0.1);
         pre_color.xyz = pre_color.xyz*vec3(0.9,0.9,1.0) + vec3(0.2);
     }
-
-    diffuseColor = fow_factor*pre_color;//vec4(pow(pre_color.rgb, vec3(1.0/gamma)), 1);
+    if (weather_state == RAIN)
+    {
+        float fog_factor = length(camera_location - post)*0.005;
+        diffuseColor = (fow_factor*pre_color*(1 - spec*0.00005) + vec4(1)*spec*0.00003)*(1-fog_factor) + vec4(0.8,0.9,1.0,0.0)*fog_factor;
+    }
+    else
+    {
+        diffuseColor = fow_factor*pre_color;
+    }
 }  
 )SHAD";

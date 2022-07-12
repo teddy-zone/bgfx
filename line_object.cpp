@@ -85,7 +85,7 @@ void LineObject::bind(const glm::mat4& view_mat, const glm::mat4& proj_mat, std:
 	}
 #endif 
 }
-
+/*
 void LineObject::draw()
 {
 #ifdef ENABLE_GRAPHICS
@@ -96,6 +96,44 @@ void LineObject::draw()
 	else
 	{
 		glDrawArrays(GL_LINES, 0, _mesh->vertex_count());
+	}
+
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		printf("GL ERROR!: %d", err);
+		throw "opengl error";
+	}
+#endif
+}
+*/
+
+void LineObject::draw()
+{
+#ifdef ENABLE_GRAPHICS
+	if (strip)
+	{
+		_mesh->_vertex_indices.bind(BindPoint::ELEMENT_ARRAY_BUFFER);
+		if (_mesh->_instanced)
+		{
+			glDrawArraysInstanced(GL_LINE_STRIP, _mesh->_vertex_indices.get_size(), GL_UNSIGNED_INT,  _mesh->_instance_offsets.get_size());
+		}
+		else
+		{
+			glDrawArrays(GL_LINE_STRIP, 0, _mesh->vertex_count());
+		}
+	}
+	else
+	{
+		_mesh->_vertex_indices.bind(BindPoint::ELEMENT_ARRAY_BUFFER);
+		if (_mesh->_instanced)
+		{
+			glDrawArraysInstanced(GL_LINES, _mesh->_vertex_indices.get_size(), GL_UNSIGNED_INT, _mesh->_instance_offsets.get_size());
+		}
+		else
+		{
+			glDrawArrays(GL_LINES, 0, _mesh->vertex_count());
+		}
 	}
 	GLenum err;
 	while ((err = glGetError()) != GL_NO_ERROR)

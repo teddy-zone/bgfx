@@ -27,7 +27,7 @@ public:
 
 	void set_material(std::shared_ptr<Material> in_mat);
 
-	void set_mesh(std::shared_ptr<Mesh> in_mesh);
+	void set_mesh(std::shared_ptr<Mesh>& in_mesh);
 
 	std::shared_ptr<Mesh> get_mesh();
 

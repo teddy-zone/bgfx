@@ -106,7 +106,7 @@ void RenderableMesh::set_material(std::shared_ptr<Material> in_mat)
 	_material = in_mat;
 }
 
-void RenderableMesh::set_mesh(std::shared_ptr<Mesh> in_mesh)
+void RenderableMesh::set_mesh(std::shared_ptr<Mesh>& in_mesh)
 {
 	_mesh = in_mesh;
 }
