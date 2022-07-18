@@ -11,6 +11,7 @@ class Camera
 {
 	glm::vec3 _position;
 	glm::vec3 _look;
+	glm::vec3 _look_offset;
 	glm::mat4 _view_mat;
 	glm::mat4 _projection_mat;
 	glm::vec3 _right;
@@ -31,8 +32,10 @@ public:
 	glm::vec3 get_position() const;
 	void translate(const glm::vec3& trans);
 	glm::vec3 get_look() const;
+	glm::vec3 get_unoffset_look() const;
 	void set_look_vector(const glm::vec3& new_look);
 	void set_look_target(const glm::vec3& new_look_target);
+	void set_look_offset(const glm::vec3& new_look_offset);
 	const glm::mat4& get_view_mat();
 	const glm::mat4& get_projection_mat();
 	void draw_object(RenderableMesh& in_mesh, std::shared_ptr<bgfx::Material> in_mat=nullptr);

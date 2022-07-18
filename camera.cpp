@@ -9,7 +9,8 @@ Camera::Camera(float width, float height, int x_res, int y_res):
 	_height(height),
 	_width(width),
 	_x_res(x_res),
-	_y_res(y_res)
+	_y_res(y_res),
+	_look_offset(0)
 {
 }
 
@@ -30,6 +31,11 @@ void Camera::translate(const glm::vec3& trans)
 
 glm::vec3 Camera::get_look() const
 {
+	return glm::normalize(_look + _look_offset);
+}
+
+glm::vec3 Camera::get_unoffset_look() const
+{
 	return _look;
 }
 
@@ -45,9 +51,15 @@ void Camera::set_look_target(const glm::vec3& new_look_target)
 	calc_vectors();
 }
 
+void Camera::set_look_offset(const glm::vec3& new_look_offset)
+{
+	_look_offset = new_look_offset;
+	calc_vectors();
+}
+
 const glm::mat4& Camera::get_view_mat()
 {
-	_view_mat = glm::lookAt(_position, _position + _look, glm::vec3(0, 0, 1));
+	_view_mat = glm::lookAt(_position, _position + _look + _look_offset, glm::vec3(0, 0, 1));
 	return _view_mat;
 }
 
@@ -71,14 +83,15 @@ void Camera::draw_object(LineObject& in_mesh, std::shared_ptr<bgfx::Material> in
 
 glm::vec3 Camera::get_ray(float x, float y)
 {
-	glm::vec3 pixel_loc = glm::normalize(_look * _f + _right * (x - 0.5f) * _width/_height + _up * (y - 0.5f) * 1.0f);
+	glm::vec3 pixel_loc = glm::normalize(get_look() * _f + _right * (x - 0.5f) * _width / _height + _up * (y - 0.5f) * 1.0f);
 	return pixel_loc;
 }
 
 void Camera::calc_vectors()
 {
-	_right = glm::normalize(glm::cross(_look, glm::vec3(0, 0, 1)));
-	_up = glm::normalize(glm::cross(_right, _look));
+	glm::vec3 intermediate_look = get_look();
+	_right = glm::normalize(glm::cross(intermediate_look, glm::vec3(0, 0, 1)));
+	_up = glm::normalize(glm::cross(_right, intermediate_look));
 	_f = 0.5f / tan(glm::radians(_fov) / 2.0f);
 }
 
