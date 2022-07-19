@@ -87,9 +87,13 @@ DeferredRenderer::DeferredRenderer(int in_x_res, int in_y_res):
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, fow_buffer.get_id());
     fow_buffer.set_data(fows, BindPoint::SHADER_STORAGE_BUFFER);
 
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, spotlight_buffer.get_id());
+    spotlight_buffer.set_data(spotlights, BindPoint::SHADER_STORAGE_BUFFER);
+
     quad_mat->set_uniform_i1("point_light_count", point_lights.size());
     quad_mat->set_uniform_i1("decal_count", decals.size());
     quad_mat->set_uniform_i1("selected_object", 1);
+    quad_mat->set_uniform_i1("spotlight_buffer", spotlights.size());
     
     //glShaderStorageBlockBinding(quad_mat->get_program_id(), block_index, 2);
 
@@ -166,6 +170,18 @@ void DeferredRenderer::update_light_buffers()
     point_light_buffer.set_data(point_lights, BindPoint::SHADER_STORAGE_BUFFER);
     quad_mat->use();
     quad_mat->set_uniform_i1("point_light_count", point_lights.size());
+
+    spotlights.clear();
+    spotlights.reserve(spotlight_map.size());
+    for (auto& [light_name, light] : spotlight_map)
+    {
+        spotlights.push_back(light);
+    }
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, spotlight_buffer.get_id());
+    spotlight_buffer.set_data(spotlights, BindPoint::SHADER_STORAGE_BUFFER);
+    quad_mat->use();
+    quad_mat->set_uniform_i1("spotlight_count", spotlights.size());
 }
 
 void DeferredRenderer::update_decal_buffers()

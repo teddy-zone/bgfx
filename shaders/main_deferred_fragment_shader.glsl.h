@@ -16,6 +16,17 @@ struct PointLight
     int visible;
 };
 
+struct Spotlight
+{
+    vec4 location;
+    vec4 direction;
+    vec4 size;
+    vec4 color;
+    float intensity;
+    int visible;
+    int type; // 0 = round, 1 = rect
+};
+
 struct Decal
 {
     vec4 location;
@@ -49,7 +60,13 @@ layout (std430, binding=7) buffer fows_uni
     Fow fows[];
 };
 
+layout (std430, binding=8) buffer spotlights_uni
+{
+    Spotlight spotlights[];
+};
+
 uniform int point_light_count;
+uniform int spotlight_count;
 uniform int decal_count;
 uniform int fow_count;
 uniform vec3 camera_location;
@@ -305,6 +322,40 @@ void process_cel_shading(inout float in_light)
     }
 }
 
+bool in_spotlight(in Spotlight light, in vec3 point)
+{
+    if (light.type == 0)
+    {
+        vec3 light_to_point = point - light.location.xyz;
+        vec3 v1 = normalize(cross(light.direction.xyz, vec3(0,0,1)));
+        vec3 v2 = normalize(cross(light.direction.xyz, v1));
+        vec3 main_projection = light.direction.xyz*dot(light.direction.xyz, light_to_point);
+        vec3 direct = light_to_point - main_projection;
+
+        vec3 v1k = v1*dot(v1, direct);
+        vec3 v1_projection = normalize(main_projection + v1k);
+        float angle1 = acos(dot(v1_projection, light.direction.xyz));
+
+        vec3 v2k = v2*dot(v2, direct);
+        vec3 v2_projection = normalize(main_projection + v2k);
+        float angle2 = acos(dot(v2_projection, light.direction.xyz));
+        if (angle2 < light.size.y && angle1 < light.size.x)
+        {
+            return true;
+        }
+    }
+    else
+    {
+        vec3 light_to_point = normalize(point - light.location.xyz);
+        float angle = acos(dot(light.direction.xyz, light_to_point));
+        if (angle < light.size.x)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void main()
 {    
     vec3 norm = texture(normal_tex, uv).xyz;
@@ -400,6 +451,22 @@ void main()
             }
         }
     }
+
+	for (int i = 0; i < spotlight_count; ++i)
+	{
+		if (spotlights[i].visible != 0)
+		{
+			vec3 r = spotlights[i].location.xyz - post;
+			vec3 point_to_cam = normalize(camera_location - post);
+			vec3 d = -r;
+			vec3 reflection = d - 2*(norm*dot(d,norm));
+            if (in_spotlight(spotlights[i], post))
+            {
+				factor += spotlights[i].color.xyz*spotlights[i].intensity*10000*clamp(dot(norm, normalize(r)), 0,1)/(length(r)*length(r));
+				spec += max(0,dot(point_to_cam, reflection))*max(0,dot(point_to_cam, reflection));
+            }
+		}
+	}
 
     if (weather_state == RAIN)
     {

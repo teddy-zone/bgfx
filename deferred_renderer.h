@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "point_light.h"
+#include "spotlight.h"
 #include "decal.h"
 #include "texture.h"
 #include "framebuffer.h"
@@ -40,11 +41,14 @@ public:
     std::shared_ptr<bgfx::Material> post_process_mat;
 
     bgfx::Buffer<bgfx::PointLight> point_light_buffer;
+    bgfx::Buffer<bgfx::Spotlight> spotlight_buffer;
     bgfx::Buffer<bgfx::Decal> decal_buffer;
     bgfx::Buffer<bgfx::Fow> fow_buffer;
 
     std::vector<bgfx::PointLight> point_lights;
     std::unordered_map<int, bgfx::PointLight> point_light_map;
+    std::vector<bgfx::Spotlight> spotlights;
+    std::unordered_map<int, bgfx::Spotlight> spotlight_map;
     std::vector<bgfx::Decal> decals;
     std::unordered_map<int, bgfx::Decal> decal_map;
     std::vector<bgfx::Fow> fows;
